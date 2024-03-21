@@ -84,7 +84,7 @@ def presentie(aanwezig):
   matched = []
   integer = 0
   # Open file with all members
-  f = open("2dekmrledn.txt", 'r')
+  f = open("files/2dekmrledn.txt", 'r')
   print("----Afwezig:----")
 
   # Check who are present at vergaderingen and mark in 'matched' array
