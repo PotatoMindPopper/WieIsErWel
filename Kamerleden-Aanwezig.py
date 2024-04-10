@@ -2,6 +2,7 @@ import requests
 import xml.etree.ElementTree as ET
 import json
 from datetime import datetime, timedelta
+from colorama import Fore, Style
 
 
 def fetch_file():
@@ -75,15 +76,18 @@ def extract_meeting_ids(content):
     if len(value) == 0:
         raise Exception("Geen 'value' gevonden in de response van de API")
 
-    # TODO: Geef de gebruiker de mogelijkheid om een 'vergaderverslag' te kiezen
     print("Beschikbare 'vergaderverslagen':")  # TODO: Voeg kleuren toe aan de output
+    # Voorbeeld van een item:
+    # d1a14aed-1bd3-4aac-9ae5-2533288f2320 2024-04-04T15:45:06.1401037+02:00 2024-04-04T13:45:48.1957918Z Tussenpublicatie Ongecorrigeerd
+    # TODO: Maak de output mooier
+    print("ID\tGewijzigdOp\tApiGewijzigdOp\tSoort\tStatus")
     for item in value:
         print(
-            item["Id"],
-            item["GewijzigdOp"],
-            item["ApiGewijzigdOp"],
-            item["Soort"],
-            item["Status"],
+            f"{Fore.BLUE}{item['Id']}{Style.RESET_ALL}",
+            f"{Fore.GREEN}{item['GewijzigdOp']}{Style.RESET_ALL}",
+            f"{Fore.YELLOW}{item['ApiGewijzigdOp']}{Style.RESET_ALL}",
+            f"{Fore.CYAN}{item['Soort']}{Style.RESET_ALL}",
+            f"{Fore.MAGENTA}{item['Status']}{Style.RESET_ALL}",
         )
     print("Kies een 'vergaderverslag' door het ID in te voeren:")
     print(
@@ -518,12 +522,13 @@ def main():
     content = fetch_file()
     meeting_ids = extract_meeting_ids(content)
     reports = fetch_reports(meeting_ids)
+    if not reports:
+        print("[main()] Geen 'vergaderverslag' gevonden.")
+        return
     for report in reports:
         kamerleden = parse_xml(report)
         attendance = check_attendance(kamerleden)
         create_chart(attendance)
-    else:
-        print("[main()] Geen 'vergaderverslag' gevonden.")
 
 
 if __name__ == "__main__":
