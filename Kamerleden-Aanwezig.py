@@ -18,7 +18,7 @@ def fetch_file():
     yesterday = datetime.now() - timedelta(days=1)
     year, month, day = yesterday.year, yesterday.month, yesterday.day
 
-    day = 4  # Debugging
+    # day = 4  # Debugging
 
     # Voorbeeld van een response zonder 'value':
     # {"@odata.context":"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Verslag","value":[]}
@@ -517,6 +517,12 @@ def check_attendance(attendance_list):
     :param attendance_list: Een lijst van Kamerleden die aanwezig waren
     :return: Een lijst van Kamerleden die aanwezig waren
     """
+    # Check of er iets in de lijst zit
+    if not attendance_list or len(attendance_list) == 0 or attendance_list == [""] or attendance_list[0] == "":
+        print("Geen Kamerleden gevonden.")
+        return []
+    
+    # Lees de namen van de Kamerleden die aanwezig waren    
     matching = []
     total_matched = 0
     with open("files/2dekmrledn.txt", "r", encoding="utf-8") as file:
