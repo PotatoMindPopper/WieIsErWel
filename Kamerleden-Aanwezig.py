@@ -17,8 +17,8 @@ def fetch_file():
     """
     yesterday = datetime.now() - timedelta(days=1)
     year, month, day = yesterday.year, yesterday.month, yesterday.day
-    
-    day = 4 # Debugging
+
+    day = 4  # Debugging
 
     # Voorbeeld van een response zonder 'value':
     # {"@odata.context":"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Verslag","value":[]}
@@ -76,37 +76,49 @@ def extract_meeting_ids(content):
     if len(value) == 0:
         raise Exception("Geen 'value' gevonden in de response van de API")
 
-    print("Beschikbare 'vergaderverslagen':")  # TODO: Voeg kleuren toe aan de output
+    # Print de beschikbare 'vergaderverslagen'
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{"Beschikbare 'vergaderverslagen':":<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")  # TODO: Voeg kleuren toe aan de output
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
     # Voorbeeld van een item:
     # d1a14aed-1bd3-4aac-9ae5-2533288f2320 2024-04-04T15:45:06.1401037+02:00 2024-04-04T13:45:48.1957918Z Tussenpublicatie Ongecorrigeerd
     # TODO: Maak de output mooier
-    print("ID\tGewijzigdOp\tApiGewijzigdOp\tSoort\tStatus")
+    print(f"{Fore.BLACK}{Style.BRIGHT}| {'ID':<38}| {'GewijzigdOp':<35}| {'ApiGewijzigdOp':<30}| {'Soort':<18}| {'Status':<15}|{Style.RESET_ALL}")
     for item in value:
         print(
-            f"{Fore.BLUE}{item['Id']}{Style.RESET_ALL}",
-            f"{Fore.GREEN}{item['GewijzigdOp']}{Style.RESET_ALL}",
-            f"{Fore.YELLOW}{item['ApiGewijzigdOp']}{Style.RESET_ALL}",
-            f"{Fore.CYAN}{item['Soort']}{Style.RESET_ALL}",
-            f"{Fore.MAGENTA}{item['Status']}{Style.RESET_ALL}",
+            f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.BLUE}{item['Id']:<37}{Style.RESET_ALL}",
+            f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.GREEN}{item['GewijzigdOp']:<34}{Style.RESET_ALL}",
+            f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.YELLOW}{item['ApiGewijzigdOp']:<29}{Style.RESET_ALL}",
+            f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.CYAN}{item['Soort']:<17}{Style.RESET_ALL}",
+            f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.MAGENTA}{item['Status']:<14}{Style.RESET_ALL}",
+            f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}",
         )
-    print("Kies een 'vergaderverslag' door het ID in te voeren:")
-    print(
-        "(" + 
-        "druk op Enter om de meest recente 'vergaderverslag' te kiezen; " + 
-        "gebruik ',' om meerdere ID's te scheiden; " + 
-        "mogelijk gedeeltelijke ID's toegestaan: bijv. 'd1a14aed' in plaats van 'd1a14aed-1bd3-4aac-9ae5-2533288f2320'" +
-        ")"
-    )
-    meeting_ids = input("ID(s): ")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
+
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{"Kies een 'vergaderverslag' door het ID in te voeren:":<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Druk op '{Fore.RED}Enter{Style.RESET_ALL}{"' om de meest recente 'vergaderverslag' te kiezen;":<124}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED},{Style.RESET_ALL}{"' om meerdere ID's te scheiden;":<128}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Mogelijk gedeeltelijke ID's toegestaan: bijv. '{Fore.BLUE}d1a14aed{Style.RESET_ALL}' in plaats van '{Fore.BLUE}d1a14aed-1bd3-4aac-9ae5-2533288f2320{Style.RESET_ALL}{"';":<30}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}all{Style.RESET_ALL}{"' om alle 'vergaderverslagen' te kiezen;" + "":<126}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}exit{Style.RESET_ALL}{"' om te stoppen;" + "":<125}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}Voorbeeld: {Fore.BLUE}d1a14aed{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}813667dd{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}1b927ea0{Style.RESET_ALL}{"":<107}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
+
+    # meeting_ids = input("ID(s): ")
+    meeting_ids = input(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}ID(s): {Style.RESET_ALL}")
     if meeting_ids == "":
         return [(value[0]["Id"], value[0]["Soort"])]
+    elif meeting_ids.lower() == "all":
+        return [(item["Id"], item["Soort"]) for item in value]
+    elif meeting_ids.lower() == "exit":
+        raise SystemExit
 
     # meeting_ids = meeting_ids.split(",")
     # # TODO: Maak het een gebruiker makkelijk door te checken of ID's voor X
     # #       procent overeenkomen, zodat niet gehele ID's over-getyped hoeven te
     # #       worden (indien er meerdere zijn, vraag dan om bevestiging)
     # return [(item["Id"], item["Soort"]) for item in value if item["Id"] in meeting_ids]
-    
+
     meeting_ids = meeting_ids.split(",")
     matching_meeting_ids = []
 
@@ -115,7 +127,9 @@ def extract_meeting_ids(content):
         if len(matching_ids) == 1:
             matching_meeting_ids.append((matching_ids[0], value[0]["Soort"]))
         elif len(matching_ids) > 1:
-            print(f"Er zijn meerdere vergaderverslagen die overeenkomen met '{input_id}':")
+            print(
+                f"Er zijn meerdere vergaderverslagen die overeenkomen met '{input_id}':"
+            )
             for matching_id in matching_ids:
                 print(f"- {matching_id}")
             # TODO: Vraag om bevestiging / keuze
@@ -195,12 +209,12 @@ def parse_tussenpublicatie(report):
         if "leden der Kamer, te weten:" in str(paragraph.text):
             return (
                 paragraph.text.split("leden der Kamer, te weten:")[1]
-                .strip() # Verwijder spaties aan het begin en einde
-                .lower() # Verander naar lowercase
-                .replace(" en ", ",") # Verander " en " naar ","
-                .replace(" ", "") # Verwijder spaties
-                .rstrip(",") # Verwijder laatste komma
-                .split(",") # Split op komma's
+                .strip()  # Verwijder spaties aan het begin en einde
+                .lower()  # Verander naar lowercase
+                .replace(" en ", ",")  # Verander " en " naar ","
+                .replace(" ", "")  # Verwijder spaties
+                .rstrip(",")  # Verwijder laatste komma
+                .split(",")  # Split op komma's
             )
     return []
 
