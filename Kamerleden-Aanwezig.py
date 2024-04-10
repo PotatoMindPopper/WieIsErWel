@@ -91,17 +91,40 @@ def extract_meeting_ids(content):
         )
     print("Kies een 'vergaderverslag' door het ID in te voeren:")
     print(
-        "(druk op Enter om de meest recente 'vergaderverslag' te kiezen; gebruik ',' om meerdere ID's te scheiden)"
+        "(" + 
+        "druk op Enter om de meest recente 'vergaderverslag' te kiezen; " + 
+        "gebruik ',' om meerdere ID's te scheiden; " + 
+        "mogelijk gedeeltelijke ID's toegestaan: bijv. 'd1a14aed' in plaats van 'd1a14aed-1bd3-4aac-9ae5-2533288f2320'" +
+        ")"
     )
     meeting_ids = input("ID(s): ")
     if meeting_ids == "":
         return [(value[0]["Id"], value[0]["Soort"])]
 
+    # meeting_ids = meeting_ids.split(",")
+    # # TODO: Maak het een gebruiker makkelijk door te checken of ID's voor X
+    # #       procent overeenkomen, zodat niet gehele ID's over-getyped hoeven te
+    # #       worden (indien er meerdere zijn, vraag dan om bevestiging)
+    # return [(item["Id"], item["Soort"]) for item in value if item["Id"] in meeting_ids]
+    
     meeting_ids = meeting_ids.split(",")
-    # TODO: Maak het een gebruiker makkelijk door te checken of ID's voor X
-    #       procent overeenkomen, zodat niet gehele ID's over-getyped hoeven te
-    #       worden (indien er meerdere zijn, vraag dan om bevestiging)
-    return [(item["Id"], item["Soort"]) for item in value if item["Id"] in meeting_ids]
+    matching_meeting_ids = []
+
+    for input_id in meeting_ids:
+        matching_ids = [item["Id"] for item in value if input_id in item["Id"]]
+        if len(matching_ids) == 1:
+            matching_meeting_ids.append((matching_ids[0], value[0]["Soort"]))
+        elif len(matching_ids) > 1:
+            print(f"Er zijn meerdere vergaderverslagen die overeenkomen met '{input_id}':")
+            for matching_id in matching_ids:
+                print(f"- {matching_id}")
+            # TODO: Vraag om bevestiging / keuze
+            confirm = input("Wil je doorgaan met deze vergaderverslagen? (ja/nee): ")
+            if confirm.lower() == "ja":
+                for matching_id in matching_ids:
+                    matching_meeting_ids.append((matching_id, value[0]["Soort"]))
+
+    return matching_meeting_ids
 
 
 def fetch_reports(meeting_ids):
