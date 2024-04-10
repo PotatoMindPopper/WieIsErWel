@@ -7,7 +7,7 @@ from datetime import date
 def fetch_file():
     """
     Haalt het meest recente 'vergaderverslag' op van de Tweede Kamer API
-    
+
     Omdat het meest recente 'vergaderverslag' vaak pas de volgende dag wordt
     gepubliceerd, wordt de datum van gisteren gebruikt om het meest recente
     'vergaderverslag' op te halen.
@@ -51,7 +51,9 @@ def parse_xml(report):
         if "leden der Kamer, te weten:" in str(paragraph.text):
             # TODO: Volgende alinea is de lijst van kamerleden
             # TODO: Laatste index is ongeldig, verwijder deze
-            return paragraph.text.lower().replace(" en ", ",").replace(" ", "").split(",")
+            return (
+                paragraph.text.lower().replace(" en ", ",").replace(" ", "").split(",")
+            )
     return []
 
 
@@ -83,7 +85,24 @@ def create_chart(attendance_list):
     """
     Maakt een grafiek die aangeeft wie aanwezig is en wie niet
     """
-    pass
+    import matplotlib.pyplot as plt
+
+    labels = ["Afwezig", "Aanwezig"]
+    sizes = [150 - len(attendance_list), len(attendance_list)]
+    colors = ["red", "green"]
+    explode = (0.1, 0)  # explode 1st slice
+
+    plt.pie(
+        sizes,
+        explode=explode,
+        labels=labels,
+        colors=colors,
+        autopct="%1.1f%%",
+        shadow=True,
+        startangle=140,
+    )
+    plt.axis("equal")
+    plt.show()
 
 
 def main():
