@@ -68,10 +68,35 @@ def extract_meeting_id(content):
     Haalt 'Vergaderverslag' ID uit JSON
 
     :param content: De inhoud van het meest recente 'vergaderverslag'
-    :return: Het ID van het meest recente 'vergaderverslag'
+    :return: Het ID en Soort van het meest recente 'vergaderverslag'
     """
     data = json.loads(content)
-    return data["value"][0]["Id"]  # 0 is het meest recente 'vergaderverslag'
+    value = data["value"]
+    if len(value) == 0:
+        raise Exception("Geen 'value' gevonden in de response van de API")
+
+    # TODO: Geef de gebruiker de mogelijkheid om een 'vergaderverslag' te kiezen
+    print("Beschikbare 'vergaderverslagen':") # TODO: Voeg kleuren toe aan de output
+    for item in value:
+        print(
+            item["Id"],
+            item["GewijzigdOp"],
+            item["ApiGewijzigdOp"],
+            item["Soort"],
+            item["Status"],
+        )
+    print("Kies een 'vergaderverslag' door het ID in te voeren:")
+    print("(druk op Enter om de meest recente 'vergaderverslag' te kiezen; gebruik ',' om meerdere ID's te scheiden)")
+    meeting_ids = input("ID(s): ")
+    if meeting_ids == "":
+        return (value[0]["Id"], value[0]["Soort"])
+
+    meeting_ids = meeting_ids.split(",")
+    return [(item["Id"], item["Soort"]) for item in value if item["Id"] in meeting_ids]
+
+    # TODO: Check op "Soort" en "Status" om te kijken of het 'vergaderverslag' compleet is
+
+    # return data["value"][0]["Id"]  # 0 is het meest recente 'vergaderverslag'
 
 
 def fetch_report(meeting_id):
