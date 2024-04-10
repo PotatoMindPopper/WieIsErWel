@@ -64,19 +64,12 @@ def fetch_file():
     return None
 
 
-def extract_meeting_ids(content):
+def print_verslagen(value):
     """
-    Haalt 'Vergaderverslag' ID uit JSON
-
-    :param content: De inhoud van het meest recente 'vergaderverslag'
-    :return: Het ID en Soort van het meest recente 'vergaderverslag'
+    Print de beschikbare 'vergaderverslagen'
+    
+    :param value: De 'value' van de response van de API
     """
-    data = json.loads(content)
-    value = data["value"]
-    if len(value) == 0:
-        raise Exception("Geen 'value' gevonden in de response van de API")
-
-    # Print de beschikbare 'vergaderverslagen'
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{"Beschikbare 'vergaderverslagen':":<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")  # TODO: Voeg kleuren toe aan de output
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
@@ -84,6 +77,7 @@ def extract_meeting_ids(content):
     # d1a14aed-1bd3-4aac-9ae5-2533288f2320 2024-04-04T15:45:06.1401037+02:00 2024-04-04T13:45:48.1957918Z Tussenpublicatie Ongecorrigeerd
     # TODO: Maak de output mooier
     print(f"{Fore.BLACK}{Style.BRIGHT}| {'ID':<38}| {'GewijzigdOp':<35}| {'ApiGewijzigdOp':<30}| {'Soort':<18}| {'Status':<15}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
     for item in value:
         print(
             f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.BLUE}{item['Id']:<37}{Style.RESET_ALL}",
@@ -103,6 +97,22 @@ def extract_meeting_ids(content):
     print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}exit{Style.RESET_ALL}{"' om te stoppen;" + "":<125}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}Voorbeeld: {Fore.BLUE}d1a14aed{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}813667dd{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}1b927ea0{Style.RESET_ALL}{"":<107}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
+
+
+def extract_meeting_ids(content):
+    """
+    Haalt 'Vergaderverslag' ID uit JSON
+
+    :param content: De inhoud van het meest recente 'vergaderverslag'
+    :return: Het ID en Soort van het meest recente 'vergaderverslag'
+    """
+    data = json.loads(content)
+    value = data["value"]
+    if len(value) == 0:
+        raise Exception("Geen 'value' gevonden in de response van de API")
+
+    # Print de beschikbare 'vergaderverslagen'
+    print_verslagen(value)
 
     # meeting_ids = input("ID(s): ")
     meeting_ids = input(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}ID(s): {Style.RESET_ALL}")
@@ -186,7 +196,7 @@ def parse_voorpublicatie(report):
         if objectid not in kamerleden:
             functie = speaker.find(".//ns:functie", namespaces=namespace).text
             if functie.lower().startswith("lid tweede kamer"):
-                kamerleden[objectid] = weergavenaam
+                kamerleden[objectid] = weergavenaam.lower()
 
     return list(kamerleden.values())
 
@@ -549,7 +559,7 @@ def create_chart(attendance_list):
         startangle=140,
     )
     plt.axis("equal")
-    # plt.show()
+    plt.show()
 
 
 def main():
