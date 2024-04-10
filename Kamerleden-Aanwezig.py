@@ -70,14 +70,14 @@ def print_verslagen(value):
     
     :param value: De 'value' van de response van de API
     """
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{"Beschikbare 'vergaderverslagen':":<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")  # TODO: Voeg kleuren toe aan de output
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
-    # Voorbeeld van een item:
-    # d1a14aed-1bd3-4aac-9ae5-2533288f2320 2024-04-04T15:45:06.1401037+02:00 2024-04-04T13:45:48.1957918Z Tussenpublicatie Ongecorrigeerd
-    # TODO: Maak de output mooier
+    header_length = 38 + 35 + 30 + 18 + 16 + 5 * 2
+    
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{'Beschikbare "vergaderverslagen":':<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}| {'ID':<38}| {'GewijzigdOp':<35}| {'ApiGewijzigdOp':<30}| {'Soort':<18}| {'Status':<15}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    
     for item in value:
         print(
             f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.BLUE}{item['Id']:<37}{Style.RESET_ALL}",
@@ -87,16 +87,16 @@ def print_verslagen(value):
             f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.MAGENTA}{item['Status']:<14}{Style.RESET_ALL}",
             f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}",
         )
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
-
-    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{"Kies een 'vergaderverslag' door het ID in te voeren:":<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Druk op '{Fore.RED}Enter{Style.RESET_ALL}{"' om de meest recente 'vergaderverslag' te kiezen;":<124}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED},{Style.RESET_ALL}{"' om meerdere ID's te scheiden;":<128}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Mogelijk gedeeltelijke ID's toegestaan: bijv. '{Fore.BLUE}d1a14aed{Style.RESET_ALL}' in plaats van '{Fore.BLUE}d1a14aed-1bd3-4aac-9ae5-2533288f2320{Style.RESET_ALL}{"';":<30}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}all{Style.RESET_ALL}{"' om alle 'vergaderverslagen' te kiezen;" + "":<126}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}exit{Style.RESET_ALL}{"' om te stoppen;" + "":<125}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}Voorbeeld: {Fore.BLUE}d1a14aed{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}813667dd{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}1b927ea0{Style.RESET_ALL}{"":<107}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * ((38+35+30+18+16) + 5*2)}{Style.RESET_ALL}")
+        
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{'Kies een "vergaderverslag" door het ID in te voeren:':<144}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Druk op '{Fore.RED}Enter{Style.RESET_ALL}'{' om de meest recente "vergaderverslag" te kiezen;':<123}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED},{Style.RESET_ALL}'{' om meerdere ID\'s te scheiden;':<127}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Mogelijk gedeeltelijke ID\'s toegestaan: bijv. '{Fore.BLUE}d1a14aed{Style.RESET_ALL}' in plaats van '{Fore.BLUE}d1a14aed-1bd3-4aac-9ae5-2533288f2320{Style.RESET_ALL}';{'':<28}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}all{Style.RESET_ALL}'{' om alle "vergaderverslagen" te kiezen;' + '':<125}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|     -{Style.RESET_ALL} Gebruik '{Fore.RED}exit{Style.RESET_ALL}'{' om te stoppen;' + '':<124}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}Voorbeeld: {Fore.BLUE}d1a14aed{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}813667dd{Style.RESET_ALL}{Fore.RED},{Style.RESET_ALL}{Fore.BLUE}1b927ea0{Style.RESET_ALL}{'':<107}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
 
 
 def extract_meeting_ids(content):
@@ -116,6 +116,7 @@ def extract_meeting_ids(content):
 
     # meeting_ids = input("ID(s): ")
     meeting_ids = input(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}ID(s): {Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * 38}{Style.RESET_ALL}")
     if meeting_ids == "":
         return [(value[0]["Id"], value[0]["Soort"])]
     elif meeting_ids.lower() == "all":
