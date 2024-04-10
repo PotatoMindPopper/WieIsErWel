@@ -63,7 +63,7 @@ def fetch_file():
     return None
 
 
-def extract_meeting_id(content):
+def extract_meeting_ids(content):
     """
     Haalt 'Vergaderverslag' ID uit JSON
 
@@ -76,7 +76,7 @@ def extract_meeting_id(content):
         raise Exception("Geen 'value' gevonden in de response van de API")
 
     # TODO: Geef de gebruiker de mogelijkheid om een 'vergaderverslag' te kiezen
-    print("Beschikbare 'vergaderverslagen':") # TODO: Voeg kleuren toe aan de output
+    print("Beschikbare 'vergaderverslagen':")  # TODO: Voeg kleuren toe aan de output
     for item in value:
         print(
             item["Id"],
@@ -86,12 +86,17 @@ def extract_meeting_id(content):
             item["Status"],
         )
     print("Kies een 'vergaderverslag' door het ID in te voeren:")
-    print("(druk op Enter om de meest recente 'vergaderverslag' te kiezen; gebruik ',' om meerdere ID's te scheiden)")
+    print(
+        "(druk op Enter om de meest recente 'vergaderverslag' te kiezen; gebruik ',' om meerdere ID's te scheiden)"
+    )
     meeting_ids = input("ID(s): ")
     if meeting_ids == "":
-        return (value[0]["Id"], value[0]["Soort"])
+        return [(value[0]["Id"], value[0]["Soort"])]
 
     meeting_ids = meeting_ids.split(",")
+    # TODO: Maak het een gebruiker makkelijk door te checken of ID's voor X
+    #       procent overeenkomen, zodat niet gehele ID's over-getyped hoeven te
+    #       worden (indien er meerdere zijn, vraag dan om bevestiging)
     return [(item["Id"], item["Soort"]) for item in value if item["Id"] in meeting_ids]
 
     # TODO: Check op "Soort" en "Status" om te kijken of het 'vergaderverslag' compleet is
@@ -509,11 +514,14 @@ def main():
     Hoofdfunctionaliteit
     """
     content = fetch_file()
-    meeting_id = extract_meeting_id(content)
-    report = fetch_report(meeting_id)
-    kamerleden = parse_xml(report)
-    attendance = check_attendance(kamerleden)
-    create_chart(attendance)
+    meeting_ids = extract_meeting_ids(content)
+    reports = fetch_reports(meeting_ids)
+    for report in reports:
+        kamerleden = parse_xml(report)
+        attendance = check_attendance(kamerleden)
+        create_chart(attendance)
+    else:
+        print("[main()] Geen 'vergaderverslag' gevonden.")
 
 
 if __name__ == "__main__":
