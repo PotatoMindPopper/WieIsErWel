@@ -1,4 +1,4 @@
-import requests as req
+import requests
 import xml.etree.ElementTree as ET
 import json
 from datetime import date
@@ -11,14 +11,12 @@ def fetch_file():
     Omdat het meest recente 'vergaderverslag' vaak pas de volgende dag wordt
     gepubliceerd, wordt de datum van gisteren gebruikt om het meest recente
     'vergaderverslag' op te halen.
-    
+
     :return: De inhoud van het meest recente 'vergaderverslag'
     """
     today = date.today()
     year, month, day = today.year, today.month, today.day - 1
-    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
-    print("[fetch_file()] URL:", url) # Debugging
-    response = req.get(url)
+
     # Voorbeeld van een response zonder 'value':
     # {"@odata.context":"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Verslag","value":[]}
     # Voorbeeld van een response met 'value':
@@ -26,7 +24,41 @@ def fetch_file():
     # Voorbeeld van een response met meer dan 1 'value':
     # {"@odata.context":"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Verslag","value":[{"Id":"3849ce47-0ccb-417d-b883-7c13f31900e5","Soort":"Voorpublicatie","Status":"Casco","ContentType":"text/xml","ContentLength":8614,"GewijzigdOp":"2024-04-05T11:27:48.3707026+02:00","ApiGewijzigdOp":"2024-04-05T09:30:02.6745625Z","Verwijderd":false,"Vergadering_Id":"099c5fab-95f1-407b-bf3c-87e9341e6172"},{"Id":"db2dd399-803b-4147-a92c-ebccdf21d23d","Soort":"Voorpublicatie","Status":"Casco","ContentType":"text/xml","ContentLength":8614,"GewijzigdOp":"2024-04-05T08:37:03.0559843+02:00","ApiGewijzigdOp":"2024-04-05T06:37:33.2206437Z","Verwijderd":false,"Vergadering_Id":"099c5fab-95f1-407b-bf3c-87e9341e6172"}]}
     # TODO: Blijf fetchen totdat er een value is (print welke datum er wordt geprobeerd te fetchen)
-    return response.content
+
+    while True:
+        url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
+        print("[fetch_file()] URL:", url)  # Debugging
+        response = requests.get(url)
+        data = response.json()
+
+        if data["value"]:
+            # Als value niet leeg is, return de content
+            if len(data["value"]) > 0:
+                return response.content
+            else:
+                print(
+                    f"Geen 'vergaderverslag' gevonden voor {day}-{month}-{year}. Probeer de dag ervoor."
+                )
+                day -= 1
+        else:
+            # Als value niet bestaat, kijken of er een error is
+            if "error" in data:
+                raise Exception(data["error"]["message"])
+            else:
+                raise Exception(
+                    "Geen 'value' gevonden in de response van de API"
+                )  # Onbekende error
+
+        # Als de dag 0 is, ga naar de vorige maand
+        if day == 0:
+            day = 31
+            month -= 1
+        # Als de maand 0 is, ga naar het vorige jaar
+        if month == 0:
+            month = 12
+            year -= 1
+
+    return None
 
 
 def extract_meeting_id(content):
