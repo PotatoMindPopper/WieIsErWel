@@ -175,10 +175,14 @@ def parse_tussenpublicatie(report):
     paragraphs = root.findall(".//ns:alineaitem", namespaces=namespace)
     for paragraph in paragraphs:
         if "leden der Kamer, te weten:" in str(paragraph.text):
-            # TODO: Volgende alinea is de lijst van kamerleden
-            # TODO: Laatste index is ongeldig, verwijder deze
             return (
-                paragraph.text.lower().replace(" en ", ",").replace(" ", "").split(",")
+                paragraph.text.split("leden der Kamer, te weten:")[1]
+                .strip() # Verwijder spaties aan het begin en einde
+                .lower() # Verander naar lowercase
+                .replace(" en ", ",") # Verander " en " naar ","
+                .replace(" ", "") # Verwijder spaties
+                .rstrip(",") # Verwijder laatste komma
+                .split(",") # Split op komma's
             )
     return []
 
