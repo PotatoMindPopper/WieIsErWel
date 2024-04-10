@@ -128,10 +128,6 @@ def parse_xml(report):
     :param report: De inhoud van het 'Vergaderverslag'
     :return: Een lijst van Kamerleden die aanwezig waren
     """
-    try:
-        root = ET.fromstring(report.decode())
-    except ET.ParseError:
-        raise Exception("Fout bij het parsen van XML")
 
     # Voorbeeld van een XML:
     # <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -393,17 +389,54 @@ def parse_xml(report):
     #     </vergadering>
     # </vlosCoreDocument>
 
-    # TODO: Vernieuw dit om de juiste alinea te vinden
-    namespace = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
-    paragraphs = root.findall(".//ns:alineaitem", namespaces=namespace)
-    for paragraph in paragraphs:
-        if "leden der Kamer, te weten:" in str(paragraph.text):
-            # TODO: Volgende alinea is de lijst van kamerleden
-            # TODO: Laatste index is ongeldig, verwijder deze
-            return (
-                paragraph.text.lower().replace(" en ", ",").replace(" ", "").split(",")
+    if report[1] == "Tussenpublicatie":
+        # Check de meeting_type om te kijken of het een "makkelijk"
+        # 'vergaderverslag' is
+        try:
+            root = ET.fromstring(report.decode())
+        except ET.ParseError:
+            raise Exception("Fout bij het parsen van XML")
+
+        namespace = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
+        paragraphs = root.findall(".//ns:alineaitem", namespaces=namespace)
+        for paragraph in paragraphs:
+            if "leden der Kamer, te weten:" in str(paragraph.text):
+                # TODO: Volgende alinea is de lijst van kamerleden
+                # TODO: Laatste index is ongeldig, verwijder deze
+                return (
+                    paragraph.text.lower()
+                    .replace(" en ", ",")
+                    .replace(" ", "")
+                    .split(",")
+                )
+        return []
+    elif report[1] == "Voorpublicatie":
+        # Check de meeting_type om te kijken of het een "moeilijk"
+        # 'vergaderverslag' is
+        try:
+            root = ET.fromstring(report.decode())
+        except ET.ParseError:
+            raise Exception("Fout bij het parsen van XML")
+
+        namespace = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
+        # Ga op zoek naar alle sprekers (en interrumptanten)
+        speakers = root.findall(".//ns:spreker", namespaces=namespace)
+        interruptants = root.findall(".//ns:interrumpant", namespaces=namespace)
+        # TODO: Kijk naar dubbele namen
+        # TODO: Probeer te kijken naar de functie of de soort van de spreker /
+        #       interrumptant
+        kamerleden = []
+        for speaker in speakers:
+            kamerleden.append(
+                speaker.find(".//ns:weergavenaam", namespaces=namespace).text
             )
-    return []
+        for interruptant in interruptants:
+            kamerleden.append(
+                interruptant.find(".//ns:weergavenaam", namespaces=namespace).text
+            )
+        return kamerleden
+    else:
+        raise Exception("Onbekend 'vergaderverslag' type")
 
 
 def check_attendance(attendance_list):
