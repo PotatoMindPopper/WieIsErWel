@@ -139,17 +139,24 @@ def parse_voorpublicatie(report):
         raise Exception("Fout bij het parsen van XML")
 
     namespace = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
+
     # Ga op zoek naar alle sprekers
     speakers = root.findall(".//ns:spreker", namespaces=namespace)
-    # TODO: Kijk naar dubbele namen. Gebruik hiervoor de "objectid" om te kijken
-    #       of het dezelfde persoon is
 
-    # TODO: Probeer te kijken naar de functie of de soort van de spreker om te
-    #       kijken of het een Kamerlid is
-    kamerleden = []
+    # Kijk naar dubbele namen. Gebruik hiervoor de "objectid" om te kijken
+    # of het dezelfde persoon is
+    kamerleden = {}
     for speaker in speakers:
-        kamerleden.append(speaker.find(".//ns:weergavenaam", namespaces=namespace).text)
-    return kamerleden
+        # objectid = speaker.find(".//ns:objectid", namespaces=namespace).text
+        # objectid = speaker.attrib["objectid"]
+        objectid = speaker.get("objectid")
+        weergavenaam = speaker.find(".//ns:weergavenaam", namespaces=namespace).text
+        if objectid not in kamerleden:
+            functie = speaker.find(".//ns:functie", namespaces=namespace).text
+            if functie.lower().startswith("lid tweede kamer"):
+                kamerleden[objectid] = weergavenaam
+
+    return list(kamerleden.values())
 
 
 def parse_tussenpublicatie(report):
