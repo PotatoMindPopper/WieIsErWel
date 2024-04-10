@@ -99,17 +99,26 @@ def extract_meeting_id(content):
     # return data["value"][0]["Id"]  # 0 is het meest recente 'vergaderverslag'
 
 
-def fetch_report(meeting_id):
+def fetch_reports(meeting_ids):
     """
     Haalt de inhoud van 'Vergaderverslag' op
 
     :param meeting_id: Het ID van het meest recente 'vergaderverslag'
     :return: De inhoud van het 'Vergaderverslag'
     """
-    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{meeting_id}/resource"
-    print("[fetch_report()] URL:", url)  # Debugging
-    response = requests.get(url)
-    return response.content
+    # url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{meeting_id}/resource"
+    # print("[fetch_report()] URL:", url)  # Debugging
+    # response = requests.get(url)
+    # return response.content
+
+    reports = []
+    for meeting_id, meeting_type in meeting_ids:
+        url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{meeting_id}/resource"
+        print("[fetch_report()] URL:", url)  # Debugging
+        response = requests.get(url)
+        content = response.content
+        reports.append((content, meeting_type))
+    return reports
 
 
 def parse_xml(report):
