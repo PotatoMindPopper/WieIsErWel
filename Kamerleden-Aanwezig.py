@@ -1,113 +1,102 @@
-import sys
 import requests as req
 import xml.etree.ElementTree as ET
 import json
 from datetime import date
 
 
-# Haalt het meest recente 'vergaderverslag' op van de Tweede Kamer API
-def haal_bestand_op():
-    vandaag = date.today()
-    # Het 'vergaderverslag' van vandaag wordt pas erg laat vandaag of vroeg morgen gepubliceerd
-    jaar, maand, dag = vandaag.year, vandaag.month, vandaag.day - 1
-    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{jaar}%20and%20month(GewijzigdOp)%20eq%20{maand}%20and%20day(GewijzigdOp)%20eq%20{dag}"
-    reactie = req.get(url)
-    return reactie.content
+def fetch_file():
+    """
+    Haalt het meest recente 'vergaderverslag' op van de Tweede Kamer API
+    
+    Omdat het meest recente 'vergaderverslag' vaak pas de volgende dag wordt
+    gepubliceerd, wordt de datum van gisteren gebruikt om het meest recente
+    'vergaderverslag' op te halen.
+    """
+    today = date.today()
+    year, month, day = today.year, today.month, today.day - 1
+    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
+    response = req.get(url)
+    return response.content
 
 
-# Haalt 'Vergaderverslag' ID uit JSON
-def haal_vergader_id_op(inhoud):
-    gegevens = json.loads(inhoud)
-    return gegevens["value"][0]["Id"]
+def extract_meeting_id(content):
+    """
+    Haalt 'Vergaderverslag' ID uit JSON
+    """
+    data = json.loads(content)
+    return data["value"][0]["Id"]
 
 
-# Haalt de inhoud van 'Vergaderverslag' op
-def haal_verslag_op(vergader_id):
-    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergader_id}/resource"
-    reactie = req.get(url)
-    return reactie.content
+def fetch_report(meeting_id):
+    """
+    Haalt de inhoud van 'Vergaderverslag' op
+    """
+    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{meeting_id}/resource"
+    response = req.get(url)
+    return response.content
 
 
-# Parseert de XML ontvangen van de API
-def parseer_xml(verslag):
-    volgende_vlag = False
-    kamerleden = ""
-
+def parse_xml(report):
+    """
+    Parseert de XML ontvangen van de API
+    """
     try:
-        wortel = ET.fromstring(verslag.decode())
+        root = ET.fromstring(report.decode())
     except ET.ParseError:
         raise Exception("Fout bij het parsen van XML")
 
-    # Parseer XML en haal specifiek element eruit
-    ns = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
-    alinea_elementen = wortel.findall(".//ns:alineaitem", namespaces=ns)
-    for alinea in alinea_elementen:
-        if volgende_vlag:
-            kamerleden = alinea.text
-            break
-        if "leden der Kamer, te weten:" in str(alinea.text):
-            volgende_vlag = True
-
-    # Formatteer en transformeer naar array
-    kamerleden = kamerleden.lower().replace(" en ", ",").replace(" ", "").split(",")
-    # Laatste index is ongeldig, verwijder deze
-    return kamerleden[:-1]
+    namespace = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
+    paragraphs = root.findall(".//ns:alineaitem", namespaces=namespace)
+    for paragraph in paragraphs:
+        if "leden der Kamer, te weten:" in str(paragraph.text):
+            # TODO: Volgende alinea is de lijst van kamerleden
+            # TODO: Laatste index is ongeldig, verwijder deze
+            return paragraph.text.lower().replace(" en ", ",").replace(" ", "").split(",")
+    return []
 
 
-# Koppelt namen van de aanwezige lijst aan de totale lijst
-def string_gelijkheid(doel, bron, overeenkomend):
-    for i, src in enumerate(bron):
-        if src in overeenkomend:
-            continue
-        for j, tgt in enumerate(doel):
-            if j >= len(src) or j >= len(tgt):
-                if len(overeenkomend) == len(bron) - 1:
-                    overeenkomend.append(src)
-                    return True
-                else:
-                    break
-            if tgt[j] == src[j] and j == len(src) - 1:
-                overeenkomend.append(src)
-                return True
-    return False
-
-
-# Controleert aanwezigheid
-def controleer_aanwezigheid(aanwezigheidslijst):
-    overeenkomend = []
-    integer = 0
-    # Open het bestand met alle leden
-    with open("files/2dekmrledn.txt", "r") as f:
+def check_attendance(attendance_list):
+    """
+    Controleert aanwezigheid
+    """
+    matching = []
+    total_matched = 0
+    with open("files/2dekmrledn.txt", "r", encoding="utf-8") as file:
         print("----Afwezig:----")
-        # Controleer wie aanwezig is bij vergaderingen en markeer in 'overeenkomend' array
-        for regel in f:
-            if string_gelijkheid(regel.rstrip("\n"), aanwezigheidslijst, overeenkomend):
-                integer += 1
+        for line in file:
+            if line.strip() in attendance_list:
+                matching.append(line.strip())
+                total_matched += 1
             else:
-                print(regel.rstrip("\n"))
-    # Niet iedereen is gematcht
-    if integer != len(aanwezigheidslijst):
+                print(line.strip())
+
+    if total_matched != len(attendance_list):
         raise Exception(
-            f"Aantal Kamerleden komt niet overeen met het aantal aanwezigen: {integer}, maar zou moeten zijn {len(aanwezigheidslijst)}"
+            f"Aantal Kamerleden komt niet overeen met het aantal aanwezigen: {total_matched}, maar zou moeten zijn {len(attendance_list)}"
         )
 
-    print(integer, "/", len(aanwezigheidslijst))
-    return aanwezigheidslijst
+    print(total_matched, "/", len(attendance_list))
+    return attendance_list
 
 
-# Maakt een grafiek die aangeeft wie aanwezig is en wie niet
-def maak_grafiek(aanwezigheidslijst):
+def create_chart(attendance_list):
+    """
+    Maakt een grafiek die aangeeft wie aanwezig is en wie niet
+    """
     pass
 
 
-def hoofd():
-    inhoud = haal_bestand_op()
-    vergader_id = haal_vergader_id_op(inhoud)
-    verslag = haal_verslag_op(vergader_id)
-    kamerleden = parseer_xml(verslag)
-    aanwezig = controleer_aanwezigheid(kamerleden)
-    maak_grafiek(aanwezig)
+def main():
+    """
+    Hoofdfunctionaliteit
+    """
+    content = fetch_file()
+    meeting_id = extract_meeting_id(content)
+    report = fetch_report(meeting_id)
+    kamerleden = parse_xml(report)
+    attendance = check_attendance(kamerleden)
+    create_chart(attendance)
 
 
 if __name__ == "__main__":
-    hoofd()
+    main()
