@@ -18,7 +18,7 @@ def fetch_file():
     yesterday = datetime.now() - timedelta(days=1)
     year, month, day = yesterday.year, yesterday.month, yesterday.day
 
-    # day = 4  # Debugging
+    day = 11  # Debugging
 
     # Voorbeeld van een response zonder 'value':
     # {"@odata.context":"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Verslag","value":[]}
@@ -74,7 +74,7 @@ def print_and_ask_verslagen(value):
     header_length = 38 + 35 + 30 + 18 + 17 + 5 * 2
     
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL} {Fore.WHITE}{Style.BRIGHT}{'Beschikbare "vergaderverslagen":':<145}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Fore.WHITE}{Style.BRIGHT}{'Beschikbare "vergaderverslagen"':^{header_length-2}}{Style.RESET_ALL}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}| {'ID':<38}| {'GewijzigdOp':<35}| {'ApiGewijzigdOp':<30}| {'Soort':<18}| {'Status':<16}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
@@ -141,7 +141,7 @@ def extract_meeting_ids(content):
         matching_ids = [item["Id"] for item in value if input_id in item["Id"]]
         if len(matching_ids) == 1:
             # Als er maar 1 ID overeenkomt, voeg deze toe aan de lijst
-            matching_meeting_ids.append((matching_ids[0], value[0]["Soort"]))
+            matching_meeting_ids.append((matching_ids[0], value[0]["Soort"])) # TODO: Check if value[0] is correct
         elif len(matching_ids) > 1:
             # Als er meerdere ID's overeenkomen, print deze
             print(
@@ -153,7 +153,7 @@ def extract_meeting_ids(content):
             confirm = input("Wil je doorgaan met deze vergaderverslagen? (ja/nee): ")
             if confirm.lower() == "ja":
                 for matching_id in matching_ids:
-                    matching_meeting_ids.append((matching_id, value[0]["Soort"]))
+                    matching_meeting_ids.append((matching_id, value[0]["Soort"])) # TODO: Check if value[0] is correct
 
     return matching_meeting_ids
 
@@ -203,7 +203,15 @@ def parse_voorpublicatie(report):
         if objectid not in kamerleden:
             functie = speaker.find(".//ns:functie", namespaces=namespace).text
             if functie.lower().startswith("lid tweede kamer") or speaker.get("Soort") == "Tweede Kamerlid":
-                kamerleden[objectid] = weergavenaam.lower().strip()
+                # Als de functie begint met "lid Tweede Kamer" of de Soort
+                # "Tweede Kamerlid" is, voeg deze toe aan de lijst
+                # TODO: Voeg weergavenaam, voornaam, achternaam, partij toe
+                kamerleden[objectid] = (
+                    weergavenaam.lower().strip(), 
+                    speaker.find(".//ns:voornaam", namespaces=namespace).text, 
+                    speaker.find(".//ns:achternaam", namespaces=namespace).text, 
+                    speaker.find(".//ns:fractie", namespaces=namespace).text
+                )
 
     return list(kamerleden.values())
 
@@ -538,7 +546,7 @@ def parse_xml(report):
         raise Exception("Onbekend 'vergaderverslag' type")
     
     
-def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
+def print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerleden):
     """
     Print de afwezige Kamerleden
 
@@ -558,7 +566,7 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
     print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     
-    if not isinstance(alle_kamerleden[0], tuple):
+    if not isinstance(alle_kamerleden[0], tuple): # Check of je alle_kamerleden moet hebben, of juist attendance_list
         # alle_kamerleden = [(kamerlid, "", "", "") for kamerlid in alle_kamerleden]
         with open("files/file.txt", "r", encoding="utf-8") as file:
             voor_en_achternamen = [line.strip() for line in file.readlines()]
@@ -579,10 +587,17 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
         # Stephan van Baarle
         # Mpanzu Bamenga
         # ...
-        alle_kamerleden = [(kamerlid, *voor_en_achternamen[alle_kamerleden.index(kamerlid)].split(" ")) for kamerlid in alle_kamerleden]
+        alle_kamerleden = [
+            (
+                kamerlid, # weergavenaam
+                *voor_en_achternamen[alle_kamerleden.index(kamerlid)].split(" "), # voornaam, achternaam # TODO: This doens't work, due to whitespace in last name
+                "" # partij
+            ) 
+            for kamerlid in alle_kamerleden
+        ]
 
     for kamerlid in alle_kamerleden:
-        if kamerlid not in aanwezige_kamerleden:
+        if kamerlid[0] not in aanwezige_kamerleden:
             # print(kamerlid) # TODO: Print in tabelvorm
             # weergavenaam, voornaam, achternaam, partij = kamerlid.split(" - ") TODO: Voeg dit op andere plek toe aan de code
             if not isinstance(kamerlid, tuple):
@@ -606,14 +621,10 @@ def check_attendance(attendance_list):
     """
     # Check of er iets in de lijst zit
     if not attendance_list or len(attendance_list) == 0 or attendance_list == [""] or attendance_list[0] == "":
-        # print("Geen Kamerleden gevonden.")
-        # return []
         raise Exception("Geen Kamerleden gevonden.")
     
     # Check of er geen dubbele namen in de lijst zitten
     if len(attendance_list) != len(set(attendance_list)):
-        # print(f"[check_attendance()] Er zitten dubbele namen in de lijst. ({len(attendance_list)} != {len(set(attendance_list))})")
-        # return []
         raise Exception(f"Er zitten dubbele namen in de lijst. ({len(attendance_list)} != {len(set(attendance_list))})")
     
     print("[check_attendance()] Aantal Kamerleden:", len(attendance_list))  # Debugging
@@ -622,13 +633,40 @@ def check_attendance(attendance_list):
     # Lees de namen van de Kamerleden
     alle_kamerleden = []
     with open("files/2dekmrledn.txt", "r", encoding="utf-8") as file:
+        # Voorbeeld van 2dekmrledn.txt:
+        # aardema
+        # aartsen
+        # elabassi
+        # agema
+        # vanbaarle
+        # bamenga
+        # ...
         alle_kamerleden = file.read().splitlines()
-    
+        
+    # Check of attendance_list een lijst van tuples is
+    if not isinstance(attendance_list[0], tuple):
+        with open("files/file.txt", "r", encoding="utf-8") as file:
+            # Voorbeeld van file.txt:
+            # Max Aardema
+            # Thierry Aartsen
+            # Ismail el Abassi
+            # Fleur Agema
+            # Stephan van Baarle
+            # ...
+            voor_en_achternamen = [line.strip() for line in file.readlines()]
+        attendance_list = [
+            (
+                kamerlid, 
+                *voor_en_achternamen[attendance_list.index(kamerlid)].split(" "), 
+                ""
+            ) for kamerlid in attendance_list
+        ]
+
     # Check of de Kamerleden in de lijst zitten
     aanwezige_kamerleden = []
-    for kamerlid in attendance_list: # TODO: attendance_list kan een lijst van tuples zijn
-        if kamerlid in alle_kamerleden:
-            aanwezige_kamerleden.append(kamerlid)
+    for kamerlid in attendance_list:
+        if kamerlid[0] in alle_kamerleden: # TODO: Improve this, because sometimes `('haasen van', 'Peter', 'Haasen van', 'PVV')` is `vanhaasen` in 2dekmrledn.txt
+            aanwezige_kamerleden.append(kamerlid[0])
         else:
             print(f"[check_attendance()] {kamerlid} is niet gevonden. Mogelijk een typefout of geen Kamerlid?")
     
@@ -637,7 +675,7 @@ def check_attendance(attendance_list):
     
     # Print de afwezige Kamerleden als er Kamerleden aanwezig waren
     if len(aanwezige_kamerleden) != 0:
-        print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden)
+        print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerleden)
     else:
         # print("Geen Kamerleden aanwezig.")
         raise Exception("Geen Kamerleden aanwezig.")
@@ -677,7 +715,7 @@ def create_chart(attendance_list):
     _, ax = plt.subplots()
     ax.pie(sizes, explode=explode, labels=labels, colors=colors, autopct="%1.1f%%", shadow=True, startangle=140)
     ax.axis("equal")
-    plt.show()
+    # plt.show()
 
 
 def main():
