@@ -141,4 +141,5 @@ install_manifest.txt
 
 # User-specific files
 .env_windows/
+.env_linux/
 *.xml
