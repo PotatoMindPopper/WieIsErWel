@@ -536,6 +536,37 @@ def parse_xml(report):
         return parse_voorpublicatie(report[0])
     else:
         raise Exception("Onbekend 'vergaderverslag' type")
+    
+    
+def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
+    """
+    Print de afwezige Kamerleden
+
+    :param alle_kamerleden: Een lijst van alle Kamerleden
+    :param aanwezige_kamerleden: Een lijst van Kamerleden die aanwezig waren
+    """
+    # print("----Afwezig:----")
+    # for kamerlid in alle_kamerleden:
+    #     if kamerlid not in aanwezige_kamerleden:
+    #         print(kamerlid) # TODO: Print in tabelvorm
+    
+    header_length = 38 + 35 + 30 + 18 + 17 + 5 * 2
+    
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Afwezige Kamerleden':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<30}{'Voornaam':<30}{'Achternaam':<30}{'Partij':<8}{'Aanwezig':<18}{'Afwezig':<17}{Fore.BLACK}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+
+    for kamerlid in alle_kamerleden:
+        if kamerlid not in aanwezige_kamerleden:
+            # print(kamerlid) # TODO: Print in tabelvorm
+            weergavenaam, voornaam, achternaam, partij = kamerlid.split(" - ")
+            print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{weergavenaam:<30}{voornaam:<30}{achternaam:<30}{partij:<8}{'':<18}{'':<17}{Fore.BLACK}|{Style.RESET_ALL}")
+        
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Einde':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
 
 
 def check_attendance(attendance_list):
@@ -578,10 +609,7 @@ def check_attendance(attendance_list):
     
     # Print de afwezige Kamerleden als er Kamerleden aanwezig waren
     if len(aanwezige_kamerleden) != 0:
-        print("----Afwezig:----")
-        for kamerlid in alle_kamerleden:
-            if kamerlid not in aanwezige_kamerleden:
-                print(kamerlid) # TODO: Print in tabelvorm
+        print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden)
     else:
         # print("Geen Kamerleden aanwezig.")
         raise Exception("Geen Kamerleden aanwezig.")
