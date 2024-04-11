@@ -196,12 +196,8 @@ def parse_voorpublicatie(report):
         weergavenaam = speaker.find(".//ns:weergavenaam", namespaces=namespace).text
         if objectid not in kamerleden:
             functie = speaker.find(".//ns:functie", namespaces=namespace).text
-            if functie.lower().startswith("lid tweede kamer"):
-                print("[parse_voorpublicatie()] weergavenaam:", weergavenaam)  # Debugging
-                kamerleden[objectid] = weergavenaam.lower()
-            elif speaker.get("Soort") == "Tweede Kamerlid":
-                print("[parse_voorpublicatie()] weergavenaam:", weergavenaam)  # Debugging
-                kamerleden[objectid] = weergavenaam.lower()
+            if functie.lower().startswith("lid tweede kamer") or speaker.get("Soort") == "Tweede Kamerlid":
+                kamerleden[objectid] = weergavenaam.lower().strip()
 
     return list(kamerleden.values())
 
