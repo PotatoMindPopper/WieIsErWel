@@ -5,6 +5,8 @@
 #
 
 from colorama import Fore, Style
+import os
+from kamerleden_aanwezig import FILES_DIR
 
 
 def print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerleden):
@@ -29,7 +31,7 @@ def print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerl
     
     if not isinstance(alle_kamerleden[0], tuple): # Check of je alle_kamerleden moet hebben, of juist attendance_list
         # alle_kamerleden = [(kamerlid, "", "", "") for kamerlid in alle_kamerleden]
-        with open("files/file.txt", "r", encoding="utf-8") as file:
+        with open(os.path.join(FILES_DIR, "file.txt"), "r", encoding="utf-8") as file:
             voor_en_achternamen = [line.strip() for line in file.readlines()]
         # Voorbeeld van 2dekmrledn.txt:
         # aardema
@@ -93,7 +95,7 @@ def check_attendance(attendance_list):
     
     # Lees de namen van de Kamerleden
     alle_kamerleden = []
-    with open("files/2dekmrledn.txt", "r", encoding="utf-8") as file:
+    with open(os.path.join(FILES_DIR, "2dekmrledn.txt"), "r", encoding="utf-8") as file:
         # Voorbeeld van 2dekmrledn.txt:
         # aardema
         # aartsen
@@ -106,7 +108,7 @@ def check_attendance(attendance_list):
         
     # Check of attendance_list een lijst van tuples is
     if not isinstance(attendance_list[0], tuple):
-        with open("files/file.txt", "r", encoding="utf-8") as file:
+        with open(os.path.join(FILES_DIR, "file.txt"), "r", encoding="utf-8") as file:
             # Voorbeeld van file.txt:
             # Max Aardema
             # Thierry Aartsen
