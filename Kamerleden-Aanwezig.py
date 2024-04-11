@@ -218,15 +218,48 @@ def parse_tussenpublicatie(report):
     paragraphs = root.findall(".//ns:alineaitem", namespaces=namespace)
     for paragraph in paragraphs:
         if "leden der Kamer, te weten:" in str(paragraph.text):
-            return (
-                paragraph.text.split("leden der Kamer, te weten:")[1]
-                .strip()  # Verwijder spaties aan het begin en einde
-                .lower()  # Verander naar lowercase
-                .replace(" en ", ",")  # Verander " en " naar ","
-                .replace(" ", "")  # Verwijder spaties
-                .rstrip(",")  # Verwijder laatste komma
-                .split(",")  # Split op komma's
-            )
+            try:
+                aantal_kamerleden = int(paragraph.text.split("Aanwezig zijn ")[1].split("leden der Kamer, te weten:")[0].strip())
+            except ValueError:
+                aantal_kamerleden = 0
+            print("[parse_tussenpublicatie()] aantal_kamerleden:", aantal_kamerleden)  # Debugging
+            if aantal_kamerleden == 0:
+                return []
+            
+        
+            print("[parse_tussenpublicatie()] paragraph.text:", paragraph.text)  # Debugging
+            print("[parse_tussenpublicatie()] paragraphs[paragraphs.index(paragraph) + 1].text:", paragraphs[paragraphs.index(paragraph) + 1].text)
+
+            print("[parse_tussenpublicatie()] paragraph.text.split('leden der Kamer, te weten:')[1].strip():", paragraph.text.split("leden der Kamer, te weten:")[1].strip())
+            if paragraphs[paragraphs.index(paragraph) + 1].text:
+                print("[parse_tussenpublicatie()] paragraphs[paragraphs.index(paragraph) + 1].text.strip():", paragraphs[paragraphs.index(paragraph) + 1].text.strip())
+            
+            # Check of de volgende alinea een lijst van Kamerleden is
+            if paragraph.text.split("leden der Kamer, te weten:")[1].strip() != "":
+                print("[parse_tussenpublicatie()] paragraph.text bevat leden der Kamer")
+                return (
+                    paragraph.text.split("leden der Kamer, te weten:")[1]
+                    .strip()  # Verwijder spaties aan het begin en einde
+                    .lower()  # Verander naar lowercase
+                    .replace(" en ", ",")  # Verander " en " naar ","
+                    .replace(" ", "")  # Verwijder spaties
+                    .rstrip(",")  # Verwijder laatste komma
+                    .split(",")  # Split op komma's
+                )
+            elif paragraphs[paragraphs.index(paragraph) + 1].text and paragraphs[paragraphs.index(paragraph) + 1].text.strip() != "":
+                print("[parse_tussenpublicatie()] paragraphs[paragraphs.index(paragraph) + 1].text bevat leden der Kamer")
+                return (
+                    paragraphs[paragraphs.index(paragraph) + 1].text
+                    .strip()  # Verwijder spaties aan het begin en einde
+                    .lower()  # Verander naar lowercase
+                    .replace(" en ", ",")  # Verander " en " naar ","
+                    .replace(" ", "")  # Verwijder spaties
+                    .rstrip(",")  # Verwijder laatste komma
+                    .split(",")  # Split op komma's
+                )
+            else:
+                print("[parse_tussenpublicatie()] paragraph.text bevat geen leden der Kamer")
+                return []
     return []
 
 
