@@ -222,21 +222,12 @@ def parse_tussenpublicatie(report):
                 aantal_kamerleden = int(paragraph.text.split("Aanwezig zijn ")[1].split("leden der Kamer, te weten:")[0].strip())
             except ValueError:
                 aantal_kamerleden = 0
-            print("[parse_tussenpublicatie()] aantal_kamerleden:", aantal_kamerleden)  # Debugging
-            if aantal_kamerleden == 0:
-                return []
-            
-        
-            print("[parse_tussenpublicatie()] paragraph.text:", paragraph.text)  # Debugging
-            print("[parse_tussenpublicatie()] paragraphs[paragraphs.index(paragraph) + 1].text:", paragraphs[paragraphs.index(paragraph) + 1].text)
 
-            print("[parse_tussenpublicatie()] paragraph.text.split('leden der Kamer, te weten:')[1].strip():", paragraph.text.split("leden der Kamer, te weten:")[1].strip())
-            if paragraphs[paragraphs.index(paragraph) + 1].text:
-                print("[parse_tussenpublicatie()] paragraphs[paragraphs.index(paragraph) + 1].text.strip():", paragraphs[paragraphs.index(paragraph) + 1].text.strip())
+            if aantal_kamerleden == 0:
+                return parse_voorpublicatie(report)
             
             # Check of de volgende alinea een lijst van Kamerleden is
             if paragraph.text.split("leden der Kamer, te weten:")[1].strip() != "":
-                print("[parse_tussenpublicatie()] paragraph.text bevat leden der Kamer")
                 return (
                     paragraph.text.split("leden der Kamer, te weten:")[1]
                     .strip()  # Verwijder spaties aan het begin en einde
@@ -247,7 +238,6 @@ def parse_tussenpublicatie(report):
                     .split(",")  # Split op komma's
                 )
             elif paragraphs[paragraphs.index(paragraph) + 1].text and paragraphs[paragraphs.index(paragraph) + 1].text.strip() != "":
-                print("[parse_tussenpublicatie()] paragraphs[paragraphs.index(paragraph) + 1].text bevat leden der Kamer")
                 return (
                     paragraphs[paragraphs.index(paragraph) + 1].text
                     .strip()  # Verwijder spaties aan het begin en einde
@@ -258,9 +248,8 @@ def parse_tussenpublicatie(report):
                     .split(",")  # Split op komma's
                 )
             else:
-                print("[parse_tussenpublicatie()] paragraph.text bevat geen leden der Kamer")
-                return [] # TODO: Gebruik voorpublicatie manier om Kamerleden te vinden
-    return []
+                return parse_voorpublicatie(report)
+    return parse_voorpublicatie(report)
 
 
 def parse_xml(report):
