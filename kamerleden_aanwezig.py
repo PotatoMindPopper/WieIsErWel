@@ -555,14 +555,42 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Afwezige Kamerleden':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
-    print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<30}{'Voornaam':<30}{'Achternaam':<30}{'Partij':<8}{'Aanwezig':<18}{'Afwezig':<17}{Fore.BLACK}|{Style.RESET_ALL}")
+    print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}|{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    
+    if not isinstance(alle_kamerleden[0], tuple):
+        # alle_kamerleden = [(kamerlid, "", "", "") for kamerlid in alle_kamerleden]
+        with open("files/file.txt", "r", encoding="utf-8") as file:
+            voor_en_achternamen = [line.strip() for line in file.readlines()]
+        # Voorbeeld van 2dekmrledn.txt:
+        # aardema
+        # aartsen
+        # elabassi
+        # agema
+        # vanbaarle
+        # bamenga
+        # ...
+        
+        # Voorbeeld van file.txt:
+        # Max Aardema
+        # Thierry Aartsen
+        # Ismail el Abassi
+        # Fleur Agema
+        # Stephan van Baarle
+        # Mpanzu Bamenga
+        # ...
+        alle_kamerleden = [(kamerlid, *voor_en_achternamen[alle_kamerleden.index(kamerlid)].split(" ")) for kamerlid in alle_kamerleden]
 
     for kamerlid in alle_kamerleden:
         if kamerlid not in aanwezige_kamerleden:
             # print(kamerlid) # TODO: Print in tabelvorm
-            weergavenaam, voornaam, achternaam, partij = kamerlid.split(" - ")
-            print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{weergavenaam:<30}{voornaam:<30}{achternaam:<30}{partij:<8}{'':<18}{'':<17}{Fore.BLACK}|{Style.RESET_ALL}")
+            # weergavenaam, voornaam, achternaam, partij = kamerlid.split(" - ") TODO: Voeg dit op andere plek toe aan de code
+            if not isinstance(kamerlid, tuple):
+                weergavenaam = kamerlid
+                voornaam = achternaam = partij = "" # TODO: Haal voor en achternaam op uit file.txt of API
+            else:
+                weergavenaam, voornaam, achternaam, partij = kamerlid
+            print(f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{weergavenaam:<44}{voornaam:<44}{achternaam:<44}{partij:<13}{Fore.BLACK}|{Style.RESET_ALL}")
         
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     print(f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Einde':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}")
@@ -598,7 +626,7 @@ def check_attendance(attendance_list):
     
     # Check of de Kamerleden in de lijst zitten
     aanwezige_kamerleden = []
-    for kamerlid in attendance_list:
+    for kamerlid in attendance_list: # TODO: attendance_list kan een lijst van tuples zijn
         if kamerlid in alle_kamerleden:
             aanwezige_kamerleden.append(kamerlid)
         else:
