@@ -563,38 +563,21 @@ def check_attendance(attendance_list):
         if kamerlid in alle_kamerleden:
             aanwezige_kamerleden.append(kamerlid)
         else:
-            print(f"[check_attendance()] {kamerlid} is niet gevonden.")
+            print(f"[check_attendance()] {kamerlid} is niet gevonden. Mogelijk een typefout of geen Kamerlid?")
     
     print("[check_attendance()] Aantal aanwezige Kamerleden:", len(aanwezige_kamerleden))  # Debugging
     print("[check_attendance()] Aanwezige Kamerleden:", aanwezige_kamerleden)  # Debugging
     
-    # Print de afwezige Kamerleden
-    print("----Afwezig:----")
-    for kamerlid in alle_kamerleden:
-        if kamerlid not in aanwezige_kamerleden:
-            print(kamerlid)
+    # Print de afwezige Kamerleden als er Kamerleden aanwezig waren
+    if len(aanwezige_kamerleden) != 0:
+        print("----Afwezig:----")
+        for kamerlid in alle_kamerleden:
+            if kamerlid not in aanwezige_kamerleden:
+                print(kamerlid)
+    else:
+        print("Geen Kamerleden aanwezig.")
     
     return aanwezige_kamerleden
-    
-    # # Lees de namen van de Kamerleden die aanwezig waren    
-    # matching = []
-    # total_matched = 0
-    # with open("files/2dekmrledn.txt", "r", encoding="utf-8") as file:
-    #     print("----Afwezig:----")
-    #     for line in file:
-    #         if line.strip() in attendance_list:
-    #             matching.append(line.strip())
-    #             total_matched += 1
-    #         else:
-    #             print(line.strip())
-
-    # if total_matched != len(attendance_list):
-    #     raise Exception(
-    #         f"Aantal Kamerleden komt niet overeen met het aantal aanwezigen: {total_matched}, maar zou moeten zijn {len(attendance_list)}"
-    #     )
-
-    # print("Aantal Kamerleden aanwezig:", total_matched, "/", len(attendance_list))
-    # return attendance_list
 
 
 def create_chart(attendance_list):
