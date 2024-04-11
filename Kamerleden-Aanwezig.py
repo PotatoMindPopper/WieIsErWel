@@ -197,6 +197,10 @@ def parse_voorpublicatie(report):
         if objectid not in kamerleden:
             functie = speaker.find(".//ns:functie", namespaces=namespace).text
             if functie.lower().startswith("lid tweede kamer"):
+                print("[parse_voorpublicatie()] weergavenaam:", weergavenaam)  # Debugging
+                kamerleden[objectid] = weergavenaam.lower()
+            elif speaker.get("Soort") == "Tweede Kamerlid":
+                print("[parse_voorpublicatie()] weergavenaam:", weergavenaam)  # Debugging
                 kamerleden[objectid] = weergavenaam.lower()
 
     return list(kamerleden.values())
@@ -259,7 +263,7 @@ def parse_tussenpublicatie(report):
                 )
             else:
                 print("[parse_tussenpublicatie()] paragraph.text bevat geen leden der Kamer")
-                return []
+                return [] # TODO: Gebruik voorpublicatie manier om Kamerleden te vinden
     return []
 
 
@@ -654,9 +658,12 @@ def main():
         print("[main()] Geen 'vergaderverslag' gevonden.")
         return
     for report in reports:
+        print("[main()] ================================")
         kamerleden = parse_xml(report)
         attendance = check_attendance(kamerleden)
         create_chart(attendance)
+    # TODO: Maak een grafiek van de aanwezige Kamerleden over de verschillende
+    #       'vergaderverslagen'
 
 
 if __name__ == "__main__":
