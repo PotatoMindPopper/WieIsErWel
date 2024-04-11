@@ -160,7 +160,7 @@ def fetch_reports(meeting_ids):
     :return: De inhoud van het 'Vergaderverslag'
     """
     reports = []
-    for meeting_id, meeting_type in meeting_ids:
+    for meeting_id, meeting_type in meeting_ids: # TODO: Add meeting_date
         url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{meeting_id}/resource"
         print("[fetch_report()] URL:", url)  # Debugging
         response = requests.get(url)
@@ -541,13 +541,15 @@ def check_attendance(attendance_list):
     """
     # Check of er iets in de lijst zit
     if not attendance_list or len(attendance_list) == 0 or attendance_list == [""] or attendance_list[0] == "":
-        print("Geen Kamerleden gevonden.")
-        return []
+        # print("Geen Kamerleden gevonden.")
+        # return []
+        raise Exception("Geen Kamerleden gevonden.")
     
     # Check of er geen dubbele namen in de lijst zitten
     if len(attendance_list) != len(set(attendance_list)):
-        print(f"[check_attendance()] Er zitten dubbele namen in de lijst. ({len(attendance_list)} != {len(set(attendance_list))})")
-        return []
+        # print(f"[check_attendance()] Er zitten dubbele namen in de lijst. ({len(attendance_list)} != {len(set(attendance_list))})")
+        # return []
+        raise Exception(f"Er zitten dubbele namen in de lijst. ({len(attendance_list)} != {len(set(attendance_list))})")
     
     print("[check_attendance()] Aantal Kamerleden:", len(attendance_list))  # Debugging
     print("[check_attendance()] Kamerleden:", attendance_list)  # Debugging
@@ -573,9 +575,10 @@ def check_attendance(attendance_list):
         print("----Afwezig:----")
         for kamerlid in alle_kamerleden:
             if kamerlid not in aanwezige_kamerleden:
-                print(kamerlid)
+                print(kamerlid) # TODO: Print in tabelvorm
     else:
-        print("Geen Kamerleden aanwezig.")
+        # print("Geen Kamerleden aanwezig.")
+        raise Exception("Geen Kamerleden aanwezig.")
     
     return aanwezige_kamerleden
 
@@ -626,10 +629,14 @@ def main():
         print("[main()] Geen 'vergaderverslag' gevonden.")
         return
     for report in reports:
-        print("[main()] ================================")
-        kamerleden = parse_xml(report)
-        attendance = check_attendance(kamerleden)
-        create_chart(attendance)
+        try:
+            print("[main()] ================================") # TODO: Print datum of id of iets dergelijks
+            kamerleden = parse_xml(report)
+            attendance = check_attendance(kamerleden)
+            create_chart(attendance)
+        except Exception as e:
+            print(f"[main()] Er is een fout opgetreden: {e}")
+            continue
     # TODO: Maak een grafiek van de aanwezige Kamerleden over de verschillende
     #       'vergaderverslagen'
 
