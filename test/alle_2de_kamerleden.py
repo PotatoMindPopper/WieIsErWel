@@ -4,107 +4,6 @@ import requests
 API_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
 
 
-def get_fracties():
-    """
-    Haalt de fracties op
-
-    :return: Een dictionary met fractie ID's als keys en fractie namen als
-             values
-    """
-
-    # Voorbeeld van een request naar de Tweede Kamer API en de response
-    # response = requests.get("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie")
-    # response ziet er als volgt uit:
-    # {
-    #     "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Fractie",
-    #     "value": [
-    #       {
-    #         "Id": "e133cd98-1b5c-47e0-ac4d-031f34199767",
-    #         "Nummer": 2783,
-    #         "Afkorting": "BRINK",
-    #         "NaamNL": "Brinkman",
-    #         "NaamEN": "Brinkman",
-    #         "AantalZetels": null,
-    #         "AantalStemmen": null,
-    #         "DatumActief": "2012-03-20T00:00:00+01:00",
-    #         "DatumInactief": "2012-09-19T00:00:00+02:00",
-    #         "ContentType": null,
-    #         "ContentLength": null,
-    #         "GewijzigdOp": "2023-08-29T13:09:50+02:00",
-    #         "ApiGewijzigdOp": "2023-08-29T11:23:41.8713166Z",
-    #         "Verwijderd": false
-    #       },
-    #       ...
-    #     ]
-    # }
-
-    # Haal de fracties op
-    response = requests.get(API_URL + "/Fractie")
-
-    # Maak een dictionary met fractie ID's als keys en fractie namen als values
-    fracties = {}
-    # TODO: Gebruik "UTF-8" encoding voor de Nederlandse namen van de fracties
-    for fractie in response.json()["value"]:
-        fractie_id = fractie["Id"]
-        # Check of de fractie "stemmen" of "zetels" heeft, zo niet, verwijder de
-        # fractie
-        if "AantalZetels" not in fractie and "AantalStemmen" not in fractie:
-            # Attributen "AantalZetels" en "AantalStemmen" zijn niet aanwezig
-            continue
-        if "AantalZetels" in fractie and not fractie["AantalZetels"]:
-            # Attribuut "AantalZetels" is aanwezig, maar de waarde is leeg
-            continue
-        if "AantalStemmen" in fractie and not fractie["AantalStemmen"]:
-            # Attribuut "AantalStemmen" is aanwezig, maar de waarde is leeg
-            continue
-        
-        # Check of de fractie een Nederlandse naam heeft, zo niet gebruik de
-        # Engelse naam, zo niet gebruik de afkorting
-        if "NaamNL" in fractie and fractie["NaamNL"]:
-            fracties[fractie_id] = fractie["NaamNL"]
-        elif "NaamEN" in fractie and fractie["NaamEN"]:
-            fracties[fractie_id] = fractie["NaamEN"]
-        else:
-            fracties[fractie_id] = fractie["Afkorting"]
-    return fracties
-    
-    # return {fractie["Id"]: fractie["NaamNL"] for fractie in response.json()["value"]}
-
-
-def get_fractie_zetels():
-    """
-    Haalt de fractie zetels op
-
-    :return: Een dictionary met fractie zetel ID's als keys en fractie ID's als
-             values
-    """
-
-    # Voorbeeld van een request naar de Tweede Kamer API en de response
-    # response = requests.get("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/FractieZetel")
-    # response ziet er als volgt uit:
-    # {
-    #     "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#FractieZetel",
-    #     "value": [
-    #       {
-    #         "Id": "a5fea518-fe51-4b51-8e87-00095827eedb",
-    #         "Gewicht": 37,
-    #         "Fractie_Id": "65129918-f256-4975-9da4-488da34d6695",
-    #         "GewijzigdOp": "2023-12-06T12:30:05+01:00",
-    #         "ApiGewijzigdOp": "2023-12-06T13:51:23.4143455Z",
-    #         "Verwijderd": false
-    #       },
-    #       ...
-    #     ]
-    # }
-
-    # Haal de fractie zetels op
-    response = requests.get(API_URL + "/FractieZetel")
-
-    # Maak een dictionary met fractie zetel ID's als keys en fractie ID's als
-    # values
-    return {zetel["Id"]: zetel["Fractie_Id"] for zetel in response.json()["value"]}
-
-
 def get_personen():
     """
     Haalt de personen op
@@ -213,6 +112,7 @@ def get_fractie_zetel_personen():
 
     # Haal de fractie zetel personen op
     response = requests.get(API_URL + "/FractieZetelPersoon")
+
     # Maak een dictionary met fractie zetel ID's als keys en persoon ID's en
     # functies als values
     return {
@@ -222,6 +122,107 @@ def get_fractie_zetel_personen():
         )
         for fractie_zetel_persoon in response.json()["value"]
     }
+
+
+def get_fractie_zetels():
+    """
+    Haalt de fractie zetels op
+
+    :return: Een dictionary met fractie zetel ID's als keys en fractie ID's als
+             values
+    """
+
+    # Voorbeeld van een request naar de Tweede Kamer API en de response
+    # response = requests.get("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/FractieZetel")
+    # response ziet er als volgt uit:
+    # {
+    #     "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#FractieZetel",
+    #     "value": [
+    #       {
+    #         "Id": "a5fea518-fe51-4b51-8e87-00095827eedb",
+    #         "Gewicht": 37,
+    #         "Fractie_Id": "65129918-f256-4975-9da4-488da34d6695",
+    #         "GewijzigdOp": "2023-12-06T12:30:05+01:00",
+    #         "ApiGewijzigdOp": "2023-12-06T13:51:23.4143455Z",
+    #         "Verwijderd": false
+    #       },
+    #       ...
+    #     ]
+    # }
+
+    # Haal de fractie zetels op
+    response = requests.get(API_URL + "/FractieZetel")
+
+    # Maak een dictionary met fractie zetel ID's als keys en fractie ID's als
+    # values
+    return {zetel["Id"]: zetel["Fractie_Id"] for zetel in response.json()["value"]}
+
+
+def get_fracties():
+    """
+    Haalt de fracties op
+
+    :return: Een dictionary met fractie ID's als keys en fractie namen als
+             values
+    """
+
+    # Voorbeeld van een request naar de Tweede Kamer API en de response
+    # response = requests.get("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie")
+    # response ziet er als volgt uit:
+    # {
+    #     "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Fractie",
+    #     "value": [
+    #       {
+    #         "Id": "e133cd98-1b5c-47e0-ac4d-031f34199767",
+    #         "Nummer": 2783,
+    #         "Afkorting": "BRINK",
+    #         "NaamNL": "Brinkman",
+    #         "NaamEN": "Brinkman",
+    #         "AantalZetels": null,
+    #         "AantalStemmen": null,
+    #         "DatumActief": "2012-03-20T00:00:00+01:00",
+    #         "DatumInactief": "2012-09-19T00:00:00+02:00",
+    #         "ContentType": null,
+    #         "ContentLength": null,
+    #         "GewijzigdOp": "2023-08-29T13:09:50+02:00",
+    #         "ApiGewijzigdOp": "2023-08-29T11:23:41.8713166Z",
+    #         "Verwijderd": false
+    #       },
+    #       ...
+    #     ]
+    # }
+
+    # Haal de fracties op
+    response = requests.get(API_URL + "/Fractie")
+
+    # Maak een dictionary met fractie ID's als keys en fractie namen als values
+    fracties = {}
+    # TODO: Gebruik "UTF-8" encoding voor de Nederlandse namen van de fracties
+    for fractie in response.json()["value"]:
+        fractie_id = fractie["Id"]
+        # # Check of de fractie "stemmen" of "zetels" heeft, zo niet, verwijder de
+        # # fractie
+        # if "AantalZetels" not in fractie and "AantalStemmen" not in fractie:
+        #     # Attributen "AantalZetels" en "AantalStemmen" zijn niet aanwezig
+        #     continue
+        # if "AantalZetels" in fractie and not fractie["AantalZetels"]:
+        #     # Attribuut "AantalZetels" is aanwezig, maar de waarde is leeg
+        #     continue
+        # if "AantalStemmen" in fractie and not fractie["AantalStemmen"]:
+        #     # Attribuut "AantalStemmen" is aanwezig, maar de waarde is leeg
+        #     continue
+        
+        # Check of de fractie een Nederlandse naam heeft, zo niet gebruik de
+        # Engelse naam, zo niet gebruik de afkorting
+        if "NaamNL" in fractie and fractie["NaamNL"]:
+            fracties[fractie_id] = fractie["NaamNL"]
+        elif "NaamEN" in fractie and fractie["NaamEN"]:
+            fracties[fractie_id] = fractie["NaamEN"]
+        else:
+            fracties[fractie_id] = fractie["Afkorting"]
+    return fracties
+    
+    # return {fractie["Id"]: fractie["NaamNL"] for fractie in response.json()["value"]}
 
 
 def get_tweede_kamer_leden():
