@@ -260,28 +260,21 @@ def get_tweede_kamer_leden():
     # fractie_zetel_personen zijn dan personen)
     leden_tweede_kamer = []
     for fractie_zetel_persoon_id, (persoon_id, functie) in fractie_zetel_personen.items():
-        # if persoon_id not in personen:
-        #     # Persoon niet gevonden
-        #     continue
-        # persoon = personen[persoon_id]
-        # fractie_zetel_id = fractie_zetel_persoon_id
-        # if fractie_zetel_id not in fractie_zetels:
-        #     # Fractie zetel niet gevonden
-        #     continue
-        # fractie_id = fractie_zetels[fractie_zetel_id]
-        # fractie = fracties[fractie_id]
         persoon = personen.get(persoon_id)
         if not persoon:
             # Persoon niet gevonden
+            print(f"[get_tweede_kamer_leden()] Persoon met ID {persoon_id} niet gevonden.")
             continue
         fractie_zetel_id = fractie_zetel_persoon_id
         fractie_id = fractie_zetels.get(fractie_zetel_id)
         if not fractie_id:
             # Fractie zetel niet gevonden
+            print(f"[get_tweede_kamer_leden()] Fractie zetel met ID {fractie_zetel_id} niet gevonden.")
             continue
         fractie = fracties.get(fractie_id)
         if not fractie:
             # Fractie niet gevonden
+            print(f"[get_tweede_kamer_leden()] Fractie met ID {fractie_id} niet gevonden.")
             continue
         persoon["fractie"] = fractie
         persoon["functie"] = functie
