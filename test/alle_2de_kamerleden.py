@@ -66,10 +66,11 @@ def get_personen():
     personen = {}
     # TODO: Gebruik "UTF-8" encoding voor de namen van de personen
     for persoon in response.json()["value"]:
+        # TODO: Check of er onderdelen ge-strip-t moeten worden, blijkbaar hebben sommige namen een extra spatie tussen de voornaam en het tussenvoegsel
         persoon_id = persoon["Id"]
         voornaam = persoon[
             "Voornamen"
-        ]  # TODO: Kies tussen de voornamen of de roepnaam van de persoon
+        ]  # TODO: Kies tussen de voornamen of de roepnaam van de persoon (of beide) # TODO: Strip de voornamen van de persoon
         tussenvoegsel = persoon["Tussenvoegsel"] or ""
         achternaam = persoon["Achternaam"]
         if tussenvoegsel:
@@ -87,6 +88,9 @@ def get_personen():
             },
             "fractie": None,  # NOTE: Wordt later ingevuld
             "functie": None,  # NOTE: Wordt later ingevuld
+            "persoon_id": persoon_id,
+            "fractie_zetel_id": None,  # NOTE: Wordt later ingevuld
+            "fractie_id": None,  # NOTE: Wordt later ingevuld
         }
     return personen
 
@@ -290,6 +294,9 @@ def get_tweede_kamer_leden():
                             "afkorting": "ONB",
                         },
                         "functie": functie,
+                        "persoon_id": persoon_id,
+                        "fractie_zetel_id": "Onbekend",
+                        "fractie_id": "Onbekend",
                     }
                 )
                 continue
@@ -306,6 +313,9 @@ def get_tweede_kamer_leden():
                             "afkorting": "ONB",
                         },
                         "functie": functie,
+                        "persoon_id": persoon_id,
+                        "fractie_zetel_id": fractie_zetel_id,
+                        "fractie_id": "Onbekend",
                     }
                 )
                 continue
@@ -322,6 +332,9 @@ def get_tweede_kamer_leden():
                             "afkorting": "ONB",
                         },
                         "functie": functie,
+                        "persoon_id": persoon_id,
+                        "fractie_zetel_id": fractie_zetel_id,
+                        "fractie_id": fractie_id,
                     }
                 )
                 continue
@@ -330,6 +343,9 @@ def get_tweede_kamer_leden():
                     "naam": personen[persoon_id]["naam"],
                     "fractie": fractie,
                     "functie": functie,
+                    "persoon_id": persoon_id,
+                    "fractie_zetel_id": fractie_zetel_id,
+                    "fractie_id": fractie_id,
                 }
             )
         else:
@@ -343,8 +359,15 @@ def get_tweede_kamer_leden():
                         "afkorting": "ONB",
                     },
                     "functie": "Onbekend",
+                    "persoon_id": persoon_id,
+                    "fractie_zetel_id": "Onbekend",
+                    "fractie_id": "Onbekend",
                 }
             )
+    return leden_tweede_kamer
+
+
+def get_tweede_kamer_leden_2(leden_tweede_kamer):
     return leden_tweede_kamer
 
 
@@ -365,7 +388,7 @@ def save_tweede_kamer_leden(leden_tweede_kamer):
     # Sla de leden van de Tweede Kamer op
     with open("leden_tweede_kamer.json", "w", encoding="utf-8") as file:
         json.dump(data, file)
-        
+
     # DEBUGGING
     with open("test_leden_tweede_kamer.json", "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
@@ -417,6 +440,14 @@ def main():
     # Check het aantal leden van de Tweede Kamer
     if len(leden_tweede_kamer) != 150:
         print(f"[main()] Aantal leden van de Tweede Kamer: {len(leden_tweede_kamer)}")
+        # Vraag de gebruiker of er nog doorgegaan moet worden met zoeken
+        # if input("Doorgaan met zoeken? (ja/nee): ").lower() != "ja":
+        #     print("[main()] Zoeken is gestopt.")
+        #     return
+        if input("Doorgaan met zoeken? (ja/nee): ").lower() == "ja":
+            # TODO: Doe hetzelfde als er 'Onbekend'-de velden zijn
+            print("[main()] Zoeken wordt voortgezet.")
+            leden_tweede_kamer = get_tweede_kamer_leden_2(leden_tweede_kamer)
     else:
         print("[main()] Alle leden van de Tweede Kamer zijn gevonden.")
 
@@ -446,4 +477,27 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1 and (
+        sys.argv[1] == "test"
+        or sys.argv[1] == "debug"
+        or sys.argv[1] == "cache"
+        or sys.argv[1] == "clear"
+        or sys.argv[1] == "clean"
+        or sys.argv[1] == "cleanup"
+        or sys.argv[1] == "remove"
+        or sys.argv[1] == "delete"
+        or sys.argv[1] == "clearcache"
+        or sys.argv[1] == "cleancache"
+    ):
+        # Clean up the cache
+        import os
+
+        if os.path.exists("leden_tweede_kamer.json"):
+            os.remove("leden_tweede_kamer.json")
+            print("[main()] Cache is opgeschoond.")
+        else:
+            print("[main()] Cache is leeg.")
+
     main()
