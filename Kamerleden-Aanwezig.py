@@ -18,7 +18,7 @@ def getFile():
   # 'vergaderverslag' of today will only be published very late today or early tomorrow
   year = today.year
   month = today.month
-  day = today.day - 9
+  day = today.day - 1
   url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
   if debug:
     print(url)
@@ -69,7 +69,8 @@ def laatste(verslagen):
       max = int(tijden[j])
       max_element = j
 
-  print(max_element, max)
+  if debug:
+    print(max_element, max)
   return max_element
 
 
@@ -86,7 +87,6 @@ def parseXML(verslagen):
   except:
     raise Exception("Error parsing XML")
 
-  print(root.attrib["MessageID"])
   # Parse XML and extract specific element
   ns = {'ns': 'http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0'}
   alinea_elements  = root.findall(".//ns:alineaitem", namespaces=ns)
@@ -102,14 +102,13 @@ def parseXML(verslagen):
     if "leden der Kamer, te weten:" in str(alinea.text):
       next = True
       
-
     if not next or type(kamerleden) == None:
-      print("owaokar")
       continue
 
   # Format and transform into array
   kamerleden = kamerleden.lower().replace(" en ",",").replace(" ","").split(",")
-  print(type(kamerleden), kamerleden)
+  if debug:
+    print(type(kamerleden), kamerleden)
   # Last index is invalid ez fix
   return kamerleden[:len(kamerleden)-1]
 
