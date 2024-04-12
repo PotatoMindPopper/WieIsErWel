@@ -1,11 +1,15 @@
 import requests
 
 
+API_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
+
+
 def get_fracties():
     """
     Haalt de fracties op
 
-    :return: Een dictionary met fractie ID's als keys en fractie namen als values
+    :return: Een dictionary met fractie ID's als keys en fractie namen als
+             values
     """
 
     # Voorbeeld van een request naar de Tweede Kamer API en de response
@@ -35,9 +39,8 @@ def get_fracties():
     # }
 
     # Haal de fracties op
-    response = requests.get(
-        "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie"
-    )
+    response = requests.get(API_URL + "/Fractie")
+    # Maak een dictionary met fractie ID's als keys en fractie namen als values
     return {fractie["Id"]: fractie["NaamNL"] for fractie in response.json()["value"]}
 
 
@@ -45,7 +48,8 @@ def get_fractie_zetels():
     """
     Haalt de fractie zetels op
 
-    :return: Een dictionary met fractie zetel ID's als keys en fractie ID's als values
+    :return: Een dictionary met fractie zetel ID's als keys en fractie ID's als
+             values
     """
 
     # Voorbeeld van een request naar de Tweede Kamer API en de response
@@ -67,9 +71,9 @@ def get_fractie_zetels():
     # }
 
     # Haal de fractie zetels op
-    response = requests.get(
-        "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/FractieZetel"
-    )
+    response = requests.get(API_URL + "/FractieZetel")
+    # Maak een dictionary met fractie zetel ID's als keys en fractie ID's als
+    # values
     return {zetel["Id"]: zetel["Fractie_Id"] for zetel in response.json()["value"]}
 
 
@@ -77,7 +81,8 @@ def get_personen():
     """
     Haalt de personen op
 
-    :return: Een dictionary met persoon ID's als keys en persoon informatie als values
+    :return: Een dictionary met persoon ID's als keys en persoon informatie als
+             values
     """
 
     # Voorbeeld van een request naar de Tweede Kamer API en de response
@@ -117,8 +122,16 @@ def get_personen():
 
     # Haal de personen op
     response = requests.get(
-        "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Persoon?$filter=Verwijderd%20eq%20false%20and%20Functie%20eq%20%27Tweede%20Kamerlid%27"
+        API_URL
+        + "/Persoon"
+        + "?"
+        + "$filter="
+        + "Verwijderd%20eq%20false"
+        + "%20and%20"
+        + "Functie%20eq%20%27Tweede%20Kamerlid%27"
     )
+    # Maak een dictionary met persoon ID's als keys en persoon informatie als
+    # values
     return {
         # persoon["Id"]: {
         #     "naam": f"{persoon['Voornamen']} {persoon['Tussenvoegsel'] or ''} {persoon['Achternaam']}".strip(),
@@ -135,7 +148,8 @@ def get_fractie_zetel_personen():
     """
     Haalt de fractie zetel personen op
 
-    :return: Een dictionary met fractie zetel ID's als keys en persoon ID's als values
+    :return: Een dictionary met fractie zetel ID's als keys en persoon ID's en
+             functies als values
     """
 
     # Voorbeeld van een request naar de Tweede Kamer API en de response
@@ -160,13 +174,15 @@ def get_fractie_zetel_personen():
     # }
 
     # Haal de fractie zetel personen op
-    response = requests.get(
-        "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/FractieZetelPersoon"
-    )
-    # Maak een dictionary met fractie zetel ID's als keys en persoon ID's als values
-    # TODO: Voeg de functie van de persoon toe aan de dictionary
+    response = requests.get(API_URL + "/FractieZetelPersoon")
+    # Maak een dictionary met fractie zetel ID's als keys en persoon ID's en
+    # functies als values
     return {
-        item["FractieZetel_Id"]: item["Persoon_Id"] for item in response.json()["value"]
+        fractie_zetel_persoon["Id"]: (
+            fractie_zetel_persoon["Persoon_Id"],
+            fractie_zetel_persoon["Functie"],
+        )
+        for fractie_zetel_persoon in response.json()["value"]
     }
 
 
@@ -193,14 +209,35 @@ def get_tweede_kamer_leden():
         json.dumps(fractie_zetel_personen, indent=4),
     )  # Debugging
 
+    # Maak een lijst van leden van de Tweede Kamer
     tweede_kamer_leden = []
-    for fractie_zetel_id, persoon_id in fractie_zetel_personen.items():
+    for fractie_zetel_id, (persoon_id, functie) in fractie_zetel_personen.items():
+        # fractie_id = fractie_zetels[fractie_zetel_id]
+        # fractie_naam = fracties[fractie_id]
+        # persoon = personen[persoon_id]
+        # leden_tweede_kamer.append(
+        #     {
+        #         "naam": persoon["naam"],
+        #         "fractie": fractie_naam,
+        #         "functie": functie,
+        #     }
+        # )
         fractie_id = fractie_zetels.get(fractie_zetel_id)
         fractie_naam = fracties.get(fractie_id, "Onbekend")
         persoon_info = personen.get(persoon_id)
+        print(
+            f"[get_tweede_kamer_leden()] Fractie ID: {fractie_id}, Fractie naam: {fractie_naam}"
+        )
+        print(
+            f"[get_tweede_kamer_leden()] Persoon ID: {persoon_id}, Persoon info: {persoon_info}"
+        )
         if persoon_info:
             tweede_kamer_leden.append(
-                {"naam": persoon_info["naam"], "fractie": fractie_naam}
+                {
+                    "naam": persoon_info["naam"],
+                    "fractie": fractie_naam,
+                    "functie": functie,
+                }
             )
     return tweede_kamer_leden
 
@@ -210,4 +247,4 @@ leden_tweede_kamer = get_tweede_kamer_leden()
 
 # Printen van de leden van de Tweede Kamer
 for lid in leden_tweede_kamer:
-    print(f"Naam: {lid['naam']}, Fractie: {lid['fractie']}")
+    print(f"Naam: {lid['naam']}, Fractie: {lid['fractie']}, Functie: {lid['functie']}")
