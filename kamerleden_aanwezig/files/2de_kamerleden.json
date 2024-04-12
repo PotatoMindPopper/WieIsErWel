@@ -1,0 +1,752 @@
+{
+    "aardema" : {
+        "voornaam" : "Max",
+        "achternaam" : "Aardema",
+        "partij" : "PVV"
+    },
+    "aartsen" : {
+        "voornaam" : "Thierry",
+        "achternaam" : "Aartsen",
+        "partij" : ""
+    },
+    "elabassi" : {
+        "voornaam" : "Ismail",
+        "achternaam" : "el Abassi",
+        "partij" : ""
+    },
+    "agema" : {
+        "voornaam" : "Fleur",
+        "achternaam" : "Agema",
+        "partij" : ""
+    },
+    "vanbaarle" : {
+        "voornaam" : "Stephan",
+        "achternaam" : "van Baarle",
+        "partij" : ""
+    },
+    "bamenga" : {
+        "voornaam" : "Mpanzu",
+        "achternaam" : "Bamenga",
+        "partij" : ""
+    },
+    "baudet" : {
+        "voornaam" : "Thierry",
+        "achternaam" : "Baudet",
+        "partij" : ""
+    },
+    "becker" : {
+        "voornaam" : "Bente",
+        "achternaam" : "Becker",
+        "partij" : ""
+    },
+    "beckerman" : {
+        "voornaam" : "Sandra",
+        "achternaam" : "Beckerman",
+        "partij" : ""
+    },
+    "bikker" : {
+        "voornaam" : "Mirjam",
+        "achternaam" : "Bikker",
+        "partij" : ""
+    },
+    "blaauw" : {
+        "voornaam" : "Reinder",
+        "achternaam" : "Blaauw",
+        "partij" : ""
+    },
+    "bontenbal" : {
+        "voornaam" : "Henri",
+        "achternaam" : "Bontenbal",
+        "partij" : ""
+    },
+    "boon" : {
+        "voornaam" : "Maikel",
+        "achternaam" : "Boon",
+        "partij" : ""
+    },
+    "vandenborn" : {
+        "voornaam" : "Vincent",
+        "achternaam" : "van den Born",
+        "partij" : ""
+    },
+    "martinbosma" : {
+        "voornaam" : "Martin",
+        "achternaam" : "Bosma",
+        "partij" : ""
+    },
+    "boswijk" : {
+        "voornaam" : "Derk",
+        "achternaam" : "Boswijk",
+        "partij" : ""
+    },
+    "boutkan" : {
+        "voornaam" : "Willem",
+        "achternaam" : "Boutkan",
+        "partij" : ""
+    },
+    "brekelmans" : {
+        "voornaam" : "Ruben",
+        "achternaam" : "Brekelmans",
+        "partij" : ""
+    },
+    "bromet" : {
+        "voornaam" : "Laura",
+        "achternaam" : "Bromet",
+        "partij" : ""
+    },
+    "bruyning" : {
+        "voornaam" : "Faith",
+        "achternaam" : "Bruyning",
+        "partij" : ""
+    },
+    "vanderburg" : {
+        "voornaam" : "Eric",
+        "achternaam" : "van der Burg",
+        "partij" : ""
+    },
+    "bushoff" : {
+        "voornaam" : "Julian",
+        "achternaam" : "Bushoff",
+        "partij" : ""
+    },
+    "vancampen" : {
+        "voornaam" : "Thom",
+        "achternaam" : "van Campen",
+        "partij" : ""
+    },
+    "ceder" : {
+        "voornaam" : "Don",
+        "achternaam" : "Ceder",
+        "partij" : ""
+    },
+    "chakor" : {
+        "voornaam" : "Glimina",
+        "achternaam" : "Chakor",
+        "partij" : ""
+    },
+    "claassen" : {
+        "voornaam" : "René",
+        "achternaam" : "Claassen",
+        "partij" : ""
+    },
+    "crijns" : {
+        "voornaam" : "Patrick",
+        "achternaam" : "Crijns",
+        "partij" : ""
+    },
+    "dassen" : {
+        "voornaam" : "Laurens",
+        "achternaam" : "Dassen",
+        "partij" : ""
+    },
+    "deen" : {
+        "voornaam" : "Marco",
+        "achternaam" : "Deen",
+        "partij" : ""
+    },
+    "tonyvandijck" : {
+        "voornaam" : "Tony",
+        "achternaam" : "van Dijck",
+        "partij" : ""
+    },
+    "dijk" : {
+        "voornaam" : "Jimmy",
+        "achternaam" : "Dijk",
+        "partij" : ""
+    },
+    "ingevandijk" : {
+        "voornaam" : "Inge",
+        "achternaam" : "van Dijk",
+        "partij" : ""
+    },
+    "olgervandijk" : {
+        "voornaam" : "Olger",
+        "achternaam" : "van Dijk",
+        "partij" : ""
+    },
+    "diederikvandijk" : {
+        "voornaam" : "Diederik",
+        "achternaam" : "van Dijk",
+        "partij" : ""
+    },
+    "emielvandijk" : {
+        "voornaam" : "Emiel",
+        "achternaam" : "van Dijk",
+        "partij" : ""
+    },
+    "dobbe" : {
+        "voornaam" : "Sarah",
+        "achternaam" : "Dobbe",
+        "partij" : ""
+    },
+    "eerdmans" : {
+        "voornaam" : "Joost",
+        "achternaam" : "Eerdmans",
+        "partij" : ""
+    },
+    "vaneijk" : {
+        "voornaam" : "Wendy",
+        "achternaam" : "van Eijk-Nagel",
+        "partij" : ""
+    },
+    "ellian" : {
+        "voornaam" : "Ulysse",
+        "achternaam" : "Ellian",
+        "partij" : ""
+    },
+    "ergin" : {
+        "voornaam" : "Doğukan",
+        "achternaam" : "Ergin",
+        "partij" : ""
+    },
+    "erkens" : {
+        "voornaam" : "Silvio",
+        "achternaam" : "Erkens",
+        "partij" : ""
+    },
+    "esser" : {
+        "voornaam" : "Eric",
+        "achternaam" : "Esser",
+        "partij" : ""
+    },
+    "faber-vandeklashorst" : {
+        "voornaam" : "Marjolein",
+        "achternaam" : "Faber",
+        "partij" : ""
+    },
+    "flach" : {
+        "voornaam" : "André",
+        "achternaam" : "Flach",
+        "partij" : ""
+    },
+    "gabriëls" : {
+        "voornaam" : "Geert",
+        "achternaam" : "Gabriëls",
+        "partij" : ""
+    },
+    "graus" : {
+        "voornaam" : "Dion",
+        "achternaam" : "Graus",
+        "partij" : ""
+    },
+    "grinwis" : {
+        "voornaam" : "Pieter",
+        "achternaam" : "Grinwis",
+        "partij" : ""
+    },
+    "tjeerddegroot" : {
+        "voornaam" : "Tjeerd",
+        "achternaam" : "de Groot",
+        "partij" : ""
+    },
+    "peterdegroot" : {
+        "voornaam" : "Peter",
+        "achternaam" : "de Groot",
+        "partij" : ""
+    },
+    "vanhaasen" : {
+        "voornaam" : "Peter",
+        "achternaam" : "van Haasen",
+        "partij" : ""
+    },
+    "heinen" : {
+        "voornaam" : "Eelco",
+        "achternaam" : "Heinen",
+        "partij" : ""
+    },
+    "helder" : {
+        "voornaam" : "Lilian",
+        "achternaam" : "Helder",
+        "partij" : ""
+    },
+    "hermans" : {
+        "voornaam" : "Sophie",
+        "achternaam" : "Hermans",
+        "partij" : ""
+    },
+    "hertzberger" : {
+        "voornaam" : "Rosanne",
+        "achternaam" : "Hertzberger",
+        "partij" : ""
+    },
+    "heutink" : {
+        "voornaam" : "Hidde",
+        "achternaam" : "Heutink",
+        "partij" : ""
+    },
+    "vanhijum" : {
+        "voornaam" : "Eddy",
+        "achternaam" : "van Hijum",
+        "partij" : ""
+    },
+    "vandenhil" : {
+        "voornaam" : "Jacqueline",
+        "achternaam" : "van den Hil",
+        "partij" : ""
+    },
+    "hirsch" : {
+        "voornaam" : "Daniëlle",
+        "achternaam" : "Hirsch",
+        "partij" : ""
+    },
+    "vanderhoeff" : {
+        "voornaam" : "Patrick",
+        "achternaam" : "van der Hoeff",
+        "partij" : ""
+    },
+    "holman" : {
+        "voornaam" : "Harm",
+        "achternaam" : "Holman",
+        "partij" : ""
+    },
+    "dehoop" : {
+        "voornaam" : "Habtamu",
+        "achternaam" : "de Hoop",
+        "partij" : ""
+    },
+    "vanhouwelingen" : {
+        "voornaam" : "Pepijn",
+        "achternaam" : "van Houwelingen",
+        "partij" : ""
+    },
+    "idsinga" : {
+        "voornaam" : "Folkert",
+        "achternaam" : "Idsinga",
+        "partij" : ""
+    },
+    "daniëllejansen" : {
+        "voornaam" : "Daniëlle",
+        "achternaam" : "Jansen",
+        "partij" : ""
+    },
+    "jetten" : {
+        "voornaam" : "Rob",
+        "achternaam" : "Jetten",
+        "partij" : ""
+    },
+    "léondejong" : {
+        "voornaam" : "Léon",
+        "achternaam" : "de Jong",
+        "partij" : ""
+    },
+    "joseph" : {
+        "voornaam" : "Agnes",
+        "achternaam" : "Joseph",
+        "partij" : ""
+    },
+    "kahraman" : {
+        "voornaam" : "Isa",
+        "achternaam" : "Kahraman",
+        "partij" : ""
+    },
+    "kamminga" : {
+        "voornaam" : "Roelien",
+        "achternaam" : "Kamminga",
+        "partij" : ""
+    },
+    "kathmann" : {
+        "voornaam" : "Barbara",
+        "achternaam" : "Kathmann",
+        "partij" : ""
+    },
+    "keijzer" : {
+        "voornaam" : "Mona",
+        "achternaam" : "Keijzer",
+        "partij" : ""
+    },
+    "vankent" : {
+        "voornaam" : "Bart",
+        "achternaam" : "van Kent",
+        "partij" : ""
+    },
+    "kisteman" : {
+        "voornaam" : "Arend",
+        "achternaam" : "Kisteman",
+        "partij" : ""
+    },
+    "klaver" : {
+        "voornaam" : "Jesse",
+        "achternaam" : "Klaver",
+        "partij" : ""
+    },
+    "koekkoek" : {
+        "voornaam" : "Marieke",
+        "achternaam" : "Koekkoek",
+        "partij" : ""
+    },
+    "kops" : {
+        "voornaam" : "Alexander",
+        "achternaam" : "Kops",
+        "partij" : ""
+    },
+    "dekort" : {
+        "voornaam" : "Daan",
+        "achternaam" : "de Kort",
+        "partij" : ""
+    },
+    "kostić" : {
+        "voornaam" : "Ines",
+        "achternaam" : "Kostić",
+        "partij" : ""
+    },
+    "kröger" : {
+        "voornaam" : "Suzanne",
+        "achternaam" : "Kröger",
+        "partij" : ""
+    },
+    "krul" : {
+        "voornaam" : "Harmen",
+        "achternaam" : "Krul",
+        "partij" : ""
+    },
+    "lahlah" : {
+        "voornaam" : "Esmah",
+        "achternaam" : "Lahlah",
+        "partij" : ""
+    },
+    "vanderlee" : {
+        "voornaam" : "Tom",
+        "achternaam" : "van der Lee",
+        "partij" : ""
+    },
+    "maatoug" : {
+        "voornaam" : "Senna",
+        "achternaam" : "Maatoug",
+        "partij" : ""
+    },
+    "madlener" : {
+        "voornaam" : "Barry",
+        "achternaam" : "Madlener",
+        "partij" : ""
+    },
+    "maeijer" : {
+        "voornaam" : "Vicky",
+        "achternaam" : "Maeijer",
+        "partij" : ""
+    },
+    "markuszower" : {
+        "voornaam" : "Gidi",
+        "achternaam" : "Markuszower",
+        "partij" : ""
+    },
+    "martens-america" : {
+        "voornaam" : "Claire",
+        "achternaam" : "Martens",
+        "partij" : ""
+    },
+    "vanmeetelen" : {
+        "voornaam" : "Rachel",
+        "achternaam" : "van Meetelen",
+        "partij" : ""
+    },
+    "vanmeijeren" : {
+        "voornaam" : "Gideon",
+        "achternaam" : "van Meijeren",
+        "partij" : ""
+    },
+    "meulenkamp" : {
+        "voornaam" : "Wim",
+        "achternaam" : "Meulenkamp",
+        "partij" : ""
+    },
+    "michon-derkzen" : {
+        "voornaam" : "Ingrid",
+        "achternaam" : "Michon-Derkzen",
+        "partij" : ""
+    },
+    "mohandis" : {
+        "voornaam" : "Mohammed",
+        "achternaam" : "Mohandis",
+        "partij" : ""
+    },
+    "mooiman" : {
+        "voornaam" : "Jeremy",
+        "achternaam" : "Mooiman",
+        "partij" : ""
+    },
+    "edgarmulder" : {
+        "voornaam" : "Edgar",
+        "achternaam" : "Mulder",
+        "partij" : ""
+    },
+    "mutluer" : {
+        "voornaam" : "Songül",
+        "achternaam" : "Mutluer",
+        "partij" : ""
+    },
+    "nijhof-leeuw" : {
+        "voornaam" : "Jeanet",
+        "achternaam" : "Nijhof-Leeuw",
+        "partij" : ""
+    },
+    "vannispen" : {
+        "voornaam" : "Michiel",
+        "achternaam" : "van Nispen",
+        "partij" : ""
+    },
+    "nordkamp" : {
+        "voornaam" : "Jimme",
+        "achternaam" : "Nordkamp",
+        "partij" : ""
+    },
+    "omtzigt" : {
+        "voornaam" : "Pieter",
+        "achternaam" : "Omtzigt",
+        "partij" : ""
+    },
+    "vanoostenbruggen" : {
+        "voornaam" : "Tjebbe",
+        "achternaam" : "van Oostenbruggen",
+        "partij" : ""
+    },
+    "ouwehand" : {
+        "voornaam" : "Esther",
+        "achternaam" : "Ouwehand",
+        "partij" : ""
+    },
+    "palmen" : {
+        "voornaam" : "Sandra",
+        "achternaam" : "Palmen",
+        "partij" : ""
+    },
+    "paternotte" : {
+        "voornaam" : "Jan",
+        "achternaam" : "Paternotte",
+        "partij" : ""
+    },
+    "patijn" : {
+        "voornaam" : "Mariëtte",
+        "achternaam" : "Patijn",
+        "partij" : ""
+    },
+    "paul" : {
+        "voornaam" : "Mariëlle",
+        "achternaam" : "Paul",
+        "partij" : ""
+    },
+    "paulusma" : {
+        "voornaam" : "Wieke",
+        "achternaam" : "Paulusma",
+        "partij" : ""
+    },
+    "pierik" : {
+        "voornaam" : "Cor",
+        "achternaam" : "Pierik",
+        "partij" : ""
+    },
+    "pijpelink" : {
+        "voornaam" : "Anita",
+        "achternaam" : "Pijpelink",
+        "partij" : ""
+    },
+    "piri" : {
+        "voornaam" : "Kati",
+        "achternaam" : "Piri",
+        "partij" : ""
+    },
+    "vanderplas" : {
+        "voornaam" : "Caroline",
+        "achternaam" : "van der Plas",
+        "partij" : ""
+    },
+    "podt" : {
+        "voornaam" : "Anne-Marijke",
+        "achternaam" : "Podt",
+        "partij" : ""
+    },
+    "pool" : {
+        "voornaam" : "Joeri",
+        "achternaam" : "Pool",
+        "partij" : ""
+    },
+    "postma" : {
+        "voornaam" : "Wytske",
+        "achternaam" : "Postma",
+        "partij" : ""
+    },
+    "ram" : {
+        "voornaam" : "Dennis",
+        "achternaam" : "Ram",
+        "partij" : ""
+    },
+    "deroon" : {
+        "voornaam" : "Raymond",
+        "achternaam" : "de Roon",
+        "partij" : ""
+    },
+    "sixdijkstra" : {
+        "voornaam" : "Jesse",
+        "achternaam" : "Six Dijkstra",
+        "partij" : ""
+    },
+    "slagt-tichelman" : {
+        "voornaam" : "Elke",
+        "achternaam" : "Slagt",
+        "partij" : ""
+    },
+    "smitskam" : {
+        "voornaam" : "Peter",
+        "achternaam" : "Smitskam",
+        "partij" : ""
+    },
+    "sneller" : {
+        "voornaam" : "Joost",
+        "achternaam" : "Sneller",
+        "partij" : ""
+    },
+    "soepboer" : {
+        "voornaam" : "Aant Jelle",
+        "achternaam" : "Soepboer",
+        "partij" : ""
+    },
+    "stoffer" : {
+        "voornaam" : "Chris",
+        "achternaam" : "Stoffer",
+        "partij" : ""
+    },
+    "stultiens" : {
+        "voornaam" : "Luc",
+        "achternaam" : "Stultiens",
+        "partij" : ""
+    },
+    "synhaeve" : {
+        "voornaam" : "Marijke",
+        "achternaam" : "Synhaeve",
+        "partij" : ""
+    },
+    "teunissen" : {
+        "voornaam" : "Christine",
+        "achternaam" : "Teunissen",
+        "partij" : ""
+    },
+    "thijssen" : {
+        "voornaam" : "Joris",
+        "achternaam" : "Thijssen",
+        "partij" : ""
+    },
+    "tielen" : {
+        "voornaam" : "Judith",
+        "achternaam" : "Tielen",
+        "partij" : ""
+    },
+    "timmermans" : {
+        "voornaam" : "Frans",
+        "achternaam" : "Timmermans",
+        "partij" : ""
+    },
+    "tseggai" : {
+        "voornaam" : "Mikal",
+        "achternaam" : "Tseggai",
+        "partij" : ""
+    },
+    "tuinman" : {
+        "voornaam" : "Gijs",
+        "achternaam" : "Tuinman",
+        "partij" : ""
+    },
+    "uitermark" : {
+        "voornaam" : "Judith",
+        "achternaam" : "Uitermark",
+        "partij" : ""
+    },
+    "valize" : {
+        "voornaam" : "Jan",
+        "achternaam" : "Valize",
+        "partij" : ""
+    },
+    "vedder" : {
+        "voornaam" : "Eline",
+        "achternaam" : "Vedder-Monaster",
+        "partij" : ""
+    },
+    "vandervelde" : {
+        "voornaam" : "Martine",
+        "achternaam" : "van der Velde",
+        "partij" : ""
+    },
+    "veldkamp" : {
+        "voornaam" : "Caspar",
+        "achternaam" : "Veldkamp",
+        "partij" : ""
+    },
+    "veltman" : {
+        "voornaam" : "Hester",
+        "achternaam" : "Veltman-Kamp",
+        "partij" : ""
+    },
+    "vermeer" : {
+        "voornaam" : "Henk",
+        "achternaam" : "Vermeer",
+        "partij" : ""
+    },
+    "vijlbrief" : {
+        "voornaam" : "Hans",
+        "achternaam" : "Vijlbrief",
+        "partij" : ""
+    },
+    "vlottes" : {
+        "voornaam" : "Elmar",
+        "achternaam" : "Vlottes",
+        "partij" : ""
+    },
+    "vondeling" : {
+        "voornaam" : "Marina",
+        "achternaam" : "Vondeling",
+        "partij" : ""
+    },
+    "devree" : {
+        "voornaam" : "Henk",
+        "achternaam" : "de Vree",
+        "partij" : ""
+    },
+    "aukjedevries" : {
+        "voornaam" : "Aukje",
+        "achternaam" : "de Vries",
+        "partij" : ""
+    },
+    "vanvroonhoven" : {
+        "voornaam" : "Nicolien",
+        "achternaam" : "van Vroonhoven-Kok",
+        "partij" : ""
+    },
+    "vanderwal" : {
+        "voornaam" : "Christianne",
+        "achternaam" : "van der Wal",
+        "partij" : ""
+    },
+    "welzijn" : {
+        "voornaam" : "Merlien",
+        "achternaam" : "Welzijn",
+        "partij" : ""
+    },
+    "westerveld" : {
+        "voornaam" : "Lisa",
+        "achternaam" : "Westerveld",
+        "partij" : ""
+    },
+    "white" : {
+        "voornaam" : "Raoul",
+        "achternaam" : "White",
+        "partij" : ""
+    },
+    "wilders" : {
+        "voornaam" : "Geert",
+        "achternaam" : "Wilders",
+        "partij" : ""
+    },
+    "yeşilgöz-zegerius" : {
+        "voornaam" : "Dilan",
+        "achternaam" : "Yeşilgöz",
+        "partij" : ""
+    },
+    "vanzanten" : {
+        "voornaam" : "Claudia",
+        "achternaam" : "van Zanten",
+        "partij" : ""
+    },
+    "zeedijk" : {
+        "voornaam" : "Femke",
+        "achternaam" : "Zeedijk-Raeven",
+        "partij" : ""
+    }
+}
