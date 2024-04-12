@@ -74,7 +74,7 @@ def get_personen():
         else:
             naam = f"{voornaam} {achternaam}"
         personen[persoon_id] = {
-            "naam": naam,
+            "naam": naam, # TODO: Maybe convert this to a dictionary with first name, last name, etc.
             "fractie": None,  # NOTE: Wordt later ingevuld
             "functie": None,  # NOTE: Wordt later ingevuld
         }
@@ -116,7 +116,7 @@ def get_fractie_zetel_personen():
     # Maak een dictionary met fractie zetel ID's als keys en persoon ID's en
     # functies als values
     return {
-        fractie_zetel_persoon["Id"]: (
+        fractie_zetel_persoon["FractieZetel_Id"]: (
             fractie_zetel_persoon["Persoon_Id"],
             fractie_zetel_persoon["Functie"],
         )
@@ -200,20 +200,21 @@ def get_fracties():
     # TODO: Gebruik "UTF-8" encoding voor de Nederlandse namen van de fracties
     for fractie in response.json()["value"]:
         fractie_id = fractie["Id"]
-        # # Check of de fractie "stemmen" of "zetels" heeft, zo niet, verwijder de
-        # # fractie
-        # if "AantalZetels" not in fractie and "AantalStemmen" not in fractie:
-        #     # Attributen "AantalZetels" en "AantalStemmen" zijn niet aanwezig
-        #     continue
-        # if "AantalZetels" in fractie and not fractie["AantalZetels"]:
-        #     # Attribuut "AantalZetels" is aanwezig, maar de waarde is leeg
-        #     continue
-        # if "AantalStemmen" in fractie and not fractie["AantalStemmen"]:
-        #     # Attribuut "AantalStemmen" is aanwezig, maar de waarde is leeg
-        #     continue
+        # Check of de fractie "stemmen" of "zetels" heeft, zo niet, verwijder de
+        # fractie
+        if "AantalZetels" not in fractie and "AantalStemmen" not in fractie:
+            # Attributen "AantalZetels" en "AantalStemmen" zijn niet aanwezig
+            continue
+        if "AantalZetels" in fractie and not fractie["AantalZetels"]:
+            # Attribuut "AantalZetels" is aanwezig, maar de waarde is leeg
+            continue
+        if "AantalStemmen" in fractie and not fractie["AantalStemmen"]:
+            # Attribuut "AantalStemmen" is aanwezig, maar de waarde is leeg
+            continue
         
         # Check of de fractie een Nederlandse naam heeft, zo niet gebruik de
         # Engelse naam, zo niet gebruik de afkorting
+        # TODO: Maybe convert this to a dictionary with Dutch name, English name, etc.
         if "NaamNL" in fractie and fractie["NaamNL"]:
             fracties[fractie_id] = fractie["NaamNL"]
         elif "NaamEN" in fractie and fractie["NaamEN"]:
