@@ -99,6 +99,7 @@ def get_fractie_zetels():
 
     # Haal de fractie zetels op
     response = requests.get(API_URL + "/FractieZetel")
+
     # Maak een dictionary met fractie zetel ID's als keys en fractie ID's als
     # values
     return {zetel["Id"]: zetel["Fractie_Id"] for zetel in response.json()["value"]}
@@ -287,9 +288,23 @@ def get_tweede_kamer_leden():
     return leden_tweede_kamer
 
 
-# Ophalen van de leden van de Tweede Kamer
-leden_tweede_kamer = get_tweede_kamer_leden()
+def main():
+    """
+    Hoofdfunctionaliteit
+    """
 
-# Printen van de leden van de Tweede Kamer
-for lid in leden_tweede_kamer:
-    print(f"Naam: {lid['naam']}, Fractie: {lid['fractie']}, Functie: {lid['functie']}")
+    # Ophalen van de leden van de Tweede Kamer
+    leden_tweede_kamer = get_tweede_kamer_leden()
+    
+    # Check of er leden van de Tweede Kamer zijn gevonden
+    if not leden_tweede_kamer:
+        print("[main()] Geen leden van de Tweede Kamer gevonden.")
+        return
+
+    # Printen van de leden van de Tweede Kamer
+    for lid in leden_tweede_kamer:
+        print(f"[main()] Naam: {lid['naam']}, Fractie: {lid['fractie']}, Functie: {lid['functie']}")
+
+
+if __name__ == "__main__":
+    main()
