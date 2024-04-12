@@ -61,16 +61,19 @@ def check_names(alle_kamerleden, voor_en_achternamen):
                 ):
                     break
             else:
-                print(
-                    f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {temp_achternaam}, {temp_achternaam_1}, {temp_achternaam_2}, {temp_achternaam_3} en {temp_achternaam_4} zijn geprobeerd."
-                )
+                if len(alle_kamerleden) == 150:  # Aantal kamerleden in 2dekmrledn.txt
+                    print(
+                        f"[check_names()] {voor_en_achternaam} is niet gevonden. Mogelijk een typefout of geen Kamerlid? {temp_achternaam}, {temp_achternaam_1}, {temp_achternaam_2}, {temp_achternaam_3} en {temp_achternaam_4} zijn geprobeerd."
+                    )
                 # Verwijder de voor en achternaam uit voor_en_achternamen
                 voor_en_achternamen.remove(voor_en_achternaam)
 
     return voor_en_achternamen
 
 
-def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
+def print_afwezige_kamerleden(
+    alle_kamerleden, aanwezige_kamerleden, vergaderverslag_id
+):
     """
     Print de afwezige Kamerleden
 
@@ -119,7 +122,7 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     # Breedste weergavenaam: faber-vandeklashorst (20)
     print(
-        f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}|{Style.RESET_ALL}"
+        f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}"
     )
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
 
@@ -131,17 +134,86 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
             else:
                 weergavenaam, voornaam, achternaam, partij = kamerlid
             print(
-                f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{weergavenaam:<44}{voornaam:<44}{achternaam:<44}{partij:<13}{Fore.BLACK}|{Style.RESET_ALL}"
+                f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{weergavenaam:<44}{voornaam:<44}{achternaam:<44}{partij:<13}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}"
             )
+
+    # print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    # print(
+    #     f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{f'Einde ({vergaderverslag_id})':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}"
+    # )
+    # print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+
+
+def print_aanwezige_kamerleden(aanwezige_kamerleden, vergaderverslag_id):
+    """
+    Print de aanwezige Kamerleden
+
+    :param aanwezige_kamerleden: Een lijst van Kamerleden die aanwezig waren
+    """
+    if not isinstance(aanwezige_kamerleden[0], tuple):
+        with open(os.path.join(FILES_DIR, "file.txt"), "r", encoding="utf-8") as file:
+            voor_en_achternamen = [line.strip() for line in file.readlines()]
+        # Voorbeeld van 2dekmrledn.txt:
+        # aardema
+        # aartsen
+        # elabassi
+        # agema
+        # vanbaarle
+        # bamenga
+        # ...
+
+        # Voorbeeld van file.txt:
+        # Max Aardema
+        # Thierry Aartsen
+        # Ismail el Abassi
+        # Fleur Agema
+        # Stephan van Baarle
+        # Mpanzu Bamenga
+        # ...
+        voor_en_achternamen = check_names(aanwezige_kamerleden, voor_en_achternamen)
+
+        aanwezige_kamerleden = [
+            (
+                kamerlid,  # weergavenaam
+                *voor_en_achternamen[aanwezige_kamerleden.index(kamerlid)].split(
+                    " ", 1
+                ),  # voornaam, achternaam
+                "",  # partij
+            )
+            for kamerlid in aanwezige_kamerleden
+        ]
+
+    header_length = 38 + 35 + 30 + 18 + 17 + 5 * 2
 
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
     print(
-        f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Einde':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}"
+        f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Aanwezige Kamerleden':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}"
+    )
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    # Breedste weergavenaam: faber-vandeklashorst (20)
+    print(
+        f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}"
+    )
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+
+    for kamerlid in aanwezige_kamerleden:
+        if not isinstance(kamerlid, tuple):
+            weergavenaam = kamerlid
+            voornaam = achternaam = partij = ""
+        else:
+            weergavenaam, voornaam, achternaam, partij = kamerlid
+        print(
+            f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{weergavenaam:<44}{voornaam:<44}{achternaam:<44}{partij:<13}{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}"
+        )
+
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(
+        f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{f'Einde ({vergaderverslag_id})':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}"
     )
     print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
 
 
-def check_attendance(attendance_list):
+def check_attendance(attendance_list, vergaderverslag_id):
     """
     Controleert aanwezigheid
 
@@ -168,7 +240,7 @@ def check_attendance(attendance_list):
 
     # Lees de namen van de Kamerleden
     alle_kamerleden = []
-    with open(os.path.join(FILES_DIR, "2dekmrledn.txt"), "r", encoding="utf-8") as file:
+    with open(os.path.join(FILES_DIR, "2dekmrledn.txt"), "r", encoding="utf-8") as file: # https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Persoon?$filter=Verwijderd%20eq%20false%20and%20(Functie%20eq%20%27Tweede%20Kamerlid%27)
         # Voorbeeld van 2dekmrledn.txt:
         # aardema
         # aartsen
@@ -190,6 +262,7 @@ def check_attendance(attendance_list):
             # Stephan van Baarle
             # ...
             voor_en_achternamen = [line.strip() for line in file.readlines()]
+        voor_en_achternamen = check_names(alle_kamerleden, voor_en_achternamen)
         attendance_list = [
             (
                 kamerlid,
@@ -220,7 +293,10 @@ def check_attendance(attendance_list):
 
     # Print de afwezige Kamerleden als er Kamerleden aanwezig waren
     if len(aanwezige_kamerleden) != 0:
-        print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden)
+        print_afwezige_kamerleden(
+            alle_kamerleden, aanwezige_kamerleden, vergaderverslag_id
+        )
+        print_aanwezige_kamerleden(aanwezige_kamerleden, vergaderverslag_id)
     else:
         # print("Geen Kamerleden aanwezig.")
         raise Exception("Geen Kamerleden aanwezig.")
