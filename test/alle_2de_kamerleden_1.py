@@ -31,46 +31,24 @@ def match_personen_leden(personen, leden_tweede_kamer):
         elif lid["functie"] == "Onbekend":
             onbekende_leden.append(lid)
 
-    print(f"[match_personen_leden()] Onbekende leden(size: {len(onbekende_leden)}): {json.dumps(onbekende_leden, indent=4)}")
+    # print(f"[match_personen_leden()] Onbekende leden(size: {len(onbekende_leden)}): {json.dumps(onbekende_leden, indent=4)}")
     
     return leden_tweede_kamer
 
 
 def get_tweede_kamer_leden_2(leden_tweede_kamer):
-    # https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
     
     # Haal de personen informatie op
     personen = get_personen()
-    
-    # Check of er leden missen in de lijst van leden van de Tweede Kamer
-    for persoon_id in personen:
-        # if persoon_id not in [lid["naam"] for lid in leden_tweede_kamer]:
-        if persoon_id not in [lid["persoon_id"] for lid in leden_tweede_kamer]:
-            # Voeg de persoon toe aan de lijst van leden van de Tweede Kamer
-            leden_tweede_kamer.append(
-                {
-                    "naam": personen[persoon_id]["naam"],
-                    "fractie": {
-                        "nederlands": "Onbekend",
-                        "engels": "Unknown",
-                        "afkorting": "ONB",
-                    },
-                    "functie": "Onbekend",
-                    "persoon_id": persoon_id,
-                    "fractie_zetel_id": "Onbekend", # Laat de fractie zetel ID leeg
-                    "fractie_id": "Onbekend", # Laat de fractie ID leeg
-                }
-            )
-        
-    # Check of er "Onbekend"-de velden zijn
-    onbekende_leden = []
-    for lid in leden_tweede_kamer:
-        if lid["fractie"]["nederlands"] == "Onbekend":
-            onbekende_leden.append(lid)
-        elif lid["functie"] == "Onbekend":
-            onbekende_leden.append(lid)
 
-    print(f"[get_tweede_kamer_leden_2()] Onbekende leden(size: {len(onbekende_leden)}): {json.dumps(onbekende_leden, indent=4)}")
+    # Check of de personen informatie is opgehaald
+    if not personen:
+        print("[get_tweede_kamer_leden_2()] Personen informatie niet opgehaald.")
+        return leden_tweede_kamer
+    
+    # Check of de personen informatie redelijk overeenkomt met de lijst van
+    # leden van de Tweede Kamer
+    leden_tweede_kamer = match_personen_leden(personen, leden_tweede_kamer)
     
     # Haal de website op van de Tweede Kamer
     response = requests.get("https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden")
@@ -82,7 +60,6 @@ def get_tweede_kamer_leden_2(leden_tweede_kamer):
     
     # Parse de website van de Tweede Kamer
     from bs4 import BeautifulSoup
-    
     soup = BeautifulSoup(response.text, "html.parser")
     
     # Check of de website van de Tweede Kamer is geparsed
@@ -168,59 +145,146 @@ def get_tweede_kamer_leden_2(leden_tweede_kamer):
     # ...
     
     # Zoek naar de leden van de Tweede Kamer
-    for member in soup.find_all("div", class_="u-member-card-height u-break-inside--avoid-at-print m-card"):
+    member_cards = soup.find_all("div", class_="u-member-card-height u-break-inside--avoid-at-print m-card")
+    if not member_cards:
+        print("[get_tweede_kamer_leden_2()] Leden van de Tweede Kamer niet gevonden.")
+        return leden_tweede_kamer
+    
+    # Ga door de leden van de Tweede Kamer
+    member_info = []
+    
+    # Zoek naar de namen van de leden van de Tweede Kamer
+    for member_card in member_cards:
         # Zoek naar de naam van het lid van de Tweede Kamer
-        name = member.find("h3", class_="u-mt--collapse")
+        name = member_card.find("h3", class_="u-mt--collapse")
         if not name:
             print("[get_tweede_kamer_leden_2()] Naam niet gevonden.")
             continue
-        # TODO: Ga door naar de <a> tag, want de naam van het lid van de Tweede Kamer staat in de tekst van de <a> tag
+        name = name.find("a")
+        if not name:
+            print("[get_tweede_kamer_leden_2()] Naam niet gevonden.")
+            continue
         name = name.text.strip()
-        # Zoek naar de fractie van het lid van de Tweede Kamer
-        party = member.find("span", class_="u-text-size--small u-text-color--primary")
+        
+    # Zoek naar de fractie van het lid van de Tweede Kamer
+    for member_card in member_cards:
+        party = member_card.find("span", class_="u-text-size--small u-text-color--primary")
         if not party:
             print("[get_tweede_kamer_leden_2()] Fractie niet gevonden.")
             continue
         party = party.text.strip()
-        # Check of het lid van de Tweede Kamer al in de lijst van leden van de Tweede Kamer staat
-        if name not in [lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] for lid in leden_tweede_kamer]:
-            # Voeg het lid van de Tweede Kamer toe aan de lijst van leden van de Tweede Kamer
-            leden_tweede_kamer.append(
-                {
-                    "naam": {
-                        "volledig": name,
-                        "roepnaam": name.split(" ", 1)[0],
-                        "voornaam": name.split(" ", 1)[0],
-                        "tussenvoegsel": "Onbekend", # TODO: Probeer het tussenvoegsel uit de naam te halen (bijv. "van")
-                        "achternaam": name.split(" ", 1)[1],
-                    },
-                    "fractie": {
-                        "nederlands": party, # Hetzelfde als de afkorting
-                        "engels": "Unknown",
-                        "afkorting": party, # Alleen de afkorting is bekend
-                    },
-                    "functie": "Onbekend",
-                    "persoon_id": "Onbekend", # TODO: Haal dit uit de avatar url
-                    "fractie_zetel_id": "Onbekend", # Laat de fractie zetel ID leeg
-                    "fractie_id": "Onbekend", # Laat de fractie ID leeg
-                }
-            )
-        elif party not in [lid["fractie"]["nederlands"] for lid in leden_tweede_kamer]:
-            # Voeg de fractie toe aan het lid van de Tweede Kamer
-            for lid in leden_tweede_kamer:
-                if lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] == name:
-                    lid["fractie"]["nederlands"] = party
-                    lid["fractie"]["engels"] = "Unknown"
-                    lid["fractie"]["afkorting"] = party
-                    break
-        else:
-            # Voeg de functie toe aan het lid van de Tweede Kamer
-            for lid in leden_tweede_kamer:
-                if lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] == name:
-                    lid["functie"] = "Lid"
-                    break
         
-    return leden_tweede_kamer
+    # Zoek naar ids gebonden aan de leden van de Tweede Kamer
+    for member_card in member_cards:
+        # Zoek naar de persoon ID van het lid van de Tweede Kamer
+        person_id = member_card.find("img", class_="m-avatar__image")
+        if not person_id:
+            print("[get_tweede_kamer_leden_2()] Persoon ID niet gevonden.")
+            continue
+        person_id = person_id["src"].split("/")[-1].split(".")[0]
+        
+        # Zoek naar zelf gebruikte ID van het lid van de Tweede Kamer
+        call_id = member_card.find("a")["href"].split("/")[-1]
+        # Gebruik alles tot de laatste "-" in de call ID (dit is de fractie)
+        call_id = call_id.rsplit("-", 1)[0]
+        
+    # Check of het lid van de Tweede Kamer al in de lijst van leden van de Tweede Kamer staat
+    if name not in [lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] for lid in leden_tweede_kamer]:
+        # TODO: Maak eerst het naam onderdeel van het lid van de Tweede Kamer
+        # Voeg het lid van de Tweede Kamer toe aan de lijst van leden van de Tweede Kamer
+        leden_tweede_kamer.append(
+            {
+                "naam": {
+                    "volledig": name,
+                    "roepnaam": name.split(" ", 1)[0],
+                    "voornaam": name.split(" ", 1)[0],
+                    "tussenvoegsel": "Onbekend", # TODO: Probeer het tussenvoegsel uit de naam te halen (bijv. "van")
+                    "achternaam": name.split(" ", 1)[1],
+                },
+                "fractie": {
+                    "nederlands": party, # Hetzelfde als de afkorting
+                    "engels": "Unknown",
+                    "afkorting": party, # Alleen de afkorting is bekend
+                },
+                "functie": "Onbekend",
+                "persoon_id": person_id,
+                "fractie_zetel_id": call_id, # Laat de fractie zetel ID leeg # TODO: Plaats de call_id ergens anders
+                "fractie_id": "Onbekend", # Laat de fractie ID leeg
+            }
+        )
+        
+    # Check of de fractie van het lid van de Tweede Kamer al in de lijst van leden van de Tweede Kamer staat
+    if party not in [lid["fractie"]["nederlands"] for lid in leden_tweede_kamer]:
+        # Voeg de fractie toe aan het lid van de Tweede Kamer
+        for lid in leden_tweede_kamer:
+            if lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] == name:
+                lid["fractie"]["nederlands"] = party
+                lid["fractie"]["engels"] = party
+                lid["fractie"]["afkorting"] = party
+                break
+    
+    # Voeg de functie toe aan het lid van de Tweede Kamer
+    for lid in leden_tweede_kamer:
+        if lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] == name:
+            lid["functie"] = "Lid"
+            break
+        
+    
+    
+    # # Zoek naar de leden van de Tweede Kamer
+    # for member in soup.find_all("div", class_="u-member-card-height u-break-inside--avoid-at-print m-card"):
+    #     # Zoek naar de naam van het lid van de Tweede Kamer
+    #     name = member.find("h3", class_="u-mt--collapse")
+    #     if not name:
+    #         print("[get_tweede_kamer_leden_2()] Naam niet gevonden.")
+    #         continue
+    #     # TODO: Ga door naar de <a> tag, want de naam van het lid van de Tweede Kamer staat in de tekst van de <a> tag
+    #     name = name.text.strip()
+    #     # Zoek naar de fractie van het lid van de Tweede Kamer
+    #     party = member.find("span", class_="u-text-size--small u-text-color--primary")
+    #     if not party:
+    #         print("[get_tweede_kamer_leden_2()] Fractie niet gevonden.")
+    #         continue
+    #     party = party.text.strip()
+    #     # Check of het lid van de Tweede Kamer al in de lijst van leden van de Tweede Kamer staat
+    #     if name not in [lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] for lid in leden_tweede_kamer]:
+    #         # Voeg het lid van de Tweede Kamer toe aan de lijst van leden van de Tweede Kamer
+    #         leden_tweede_kamer.append(
+    #             {
+    #                 "naam": {
+    #                     "volledig": name,
+    #                     "roepnaam": name.split(" ", 1)[0],
+    #                     "voornaam": name.split(" ", 1)[0],
+    #                     "tussenvoegsel": "Onbekend", # TODO: Probeer het tussenvoegsel uit de naam te halen (bijv. "van")
+    #                     "achternaam": name.split(" ", 1)[1],
+    #                 },
+    #                 "fractie": {
+    #                     "nederlands": party, # Hetzelfde als de afkorting
+    #                     "engels": "Unknown",
+    #                     "afkorting": party, # Alleen de afkorting is bekend
+    #                 },
+    #                 "functie": "Onbekend",
+    #                 "persoon_id": "Onbekend", # TODO: Haal dit uit de avatar url
+    #                 "fractie_zetel_id": "Onbekend", # Laat de fractie zetel ID leeg
+    #                 "fractie_id": "Onbekend", # Laat de fractie ID leeg
+    #             }
+    #         )
+    #     elif party not in [lid["fractie"]["nederlands"] for lid in leden_tweede_kamer]:
+    #         # Voeg de fractie toe aan het lid van de Tweede Kamer
+    #         for lid in leden_tweede_kamer:
+    #             if lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] == name:
+    #                 lid["fractie"]["nederlands"] = party
+    #                 lid["fractie"]["engels"] = "Unknown"
+    #                 lid["fractie"]["afkorting"] = party
+    #                 break
+    #     else:
+    #         # Voeg de functie toe aan het lid van de Tweede Kamer
+    #         for lid in leden_tweede_kamer:
+    #             if lid["naam"]["roepnaam"] + lid["naam"]["achternaam"] == name:
+    #                 lid["functie"] = "Lid"
+    #                 break
+        
+    # return leden_tweede_kamer
 
 # Test de functie
 leden_tweede_kamer = get_tweede_kamer_leden_2([])
