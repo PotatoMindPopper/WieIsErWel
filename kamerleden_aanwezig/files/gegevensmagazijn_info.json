@@ -1,0 +1,283 @@
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/FractieZetelPersoon
+
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#FractieZetelPersoon",
+  "value": [
+    {
+      "Id": "2788ce23-d15d-471d-9cfb-0014cf484003",
+      "FractieZetel_Id": "5fc85674-7330-4c3d-ae46-cd14e1f3f4dd",
+      "Persoon_Id": "1456a009-770b-4820-8919-55287a5780a7",
+      "Functie": "Lid",
+      "Van": "2012-09-20T00:00:00+02:00",
+      "TotEnMet": "2019-02-19T00:00:00+01:00",
+      "GewijzigdOp": "2023-08-29T13:10:25+02:00",
+      "ApiGewijzigdOp": "2023-08-29T13:29:23.0613959Z",
+      "Verwijderd": false
+    },
+...
+  ]
+}
+
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/FractieZetel
+
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#FractieZetel",
+  "value": [
+    {
+      "Id": "a5fea518-fe51-4b51-8e87-00095827eedb",
+      "Gewicht": 37,
+      "Fractie_Id": "65129918-f256-4975-9da4-488da34d6695",
+      "GewijzigdOp": "2023-12-06T12:30:05+01:00",
+      "ApiGewijzigdOp": "2023-12-06T13:51:23.4143455Z",
+      "Verwijderd": false
+    },
+...
+  ]
+}
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie
+
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Fractie",
+  "value": [
+    {
+      "Id": "e133cd98-1b5c-47e0-ac4d-031f34199767",
+      "Nummer": 2783,
+      "Afkorting": "BRINK",
+      "NaamNL": "Brinkman",
+      "NaamEN": "Brinkman",
+      "AantalZetels": null,
+      "AantalStemmen": null,
+      "DatumActief": "2012-03-20T00:00:00+01:00",
+      "DatumInactief": "2012-09-19T00:00:00+02:00",
+      "ContentType": null,
+      "ContentLength": null,
+      "GewijzigdOp": "2023-08-29T13:09:50+02:00",
+      "ApiGewijzigdOp": "2023-08-29T11:23:41.8713166Z",
+      "Verwijderd": false
+    },
+...
+  ]
+}
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Persoon
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Persoon",
+  "value": [
+    {
+      "Id": "fab499e2-93b6-4bba-8266-00014175f6a6",
+      "Nummer": null,
+      "Titels": null,
+      "Initialen": null,
+      "Tussenvoegsel": null,
+      "Achternaam": null,
+      "Voornamen": null,
+      "Roepnaam": null,
+      "Geslacht": null,
+      "Functie": null,
+      "Geboortedatum": null,
+      "Geboorteplaats": null,
+      "Geboorteland": null,
+      "Overlijdensdatum": null,
+      "Overlijdensplaats": null,
+      "Woonplaats": null,
+      "Land": null,
+      "Fractielabel": null,
+      "ContentType": null,
+      "ContentLength": null,
+      "GewijzigdOp": null,
+      "ApiGewijzigdOp": null,
+      "Verwijderd": null
+    },
+...
+  ]
+}
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Persoon?$filter=Verwijderd%20eq%20false%20and%20(Functie%20eq%20%27Eerste%20Kamerlid%27%20or%20Functie%20eq%20%27Tweede%20Kamerlid%27)
+// Persoon database, met filters: Verwijderd = false, en Functie = Eerste Kamerlid of Tweede Kamerlid
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Persoon",
+  "value": [
+    {
+      "Id": "e55ca731-e1aa-44c0-a5f3-0008c23976f7",
+      "Nummer": 1034,
+      "Titels": null,
+      "Initialen": "J.J.",
+      "Tussenvoegsel": null,
+      "Achternaam": "Atsma",
+      "Voornamen": "Joop",
+      "Roepnaam": "Joop",
+      "Geslacht": "man",
+      "Functie": "Eerste Kamerlid",
+      "Geboortedatum": "1956-07-06T00:00:00+02:00",
+      "Geboorteplaats": "Surhuisterveen",
+      "Geboorteland": null,
+      "Overlijdensdatum": null,
+      "Overlijdensplaats": null,
+      "Woonplaats": "Surhuisterveen",
+      "Land": "NL",
+      "Fractielabel": "CDA",
+      "ContentType": "image/jpeg",
+      "ContentLength": 27853,
+      "GewijzigdOp": "2023-08-29T13:09:45+02:00",
+      "ApiGewijzigdOp": "2023-08-29T11:15:19.4179601Z",
+      "Verwijderd": false
+    },
+...
+  ]
+}
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Persoon?$filter=Verwijderd%20eq%20false%20and%20Functie%20eq%20%27Tweede%20Kamerlid%27
+// Persoon database, met filters: Verwijderd = false, en Functie = Tweede Kamerlid
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Persoon",
+  "value": [
+    {
+      "Id": "1c889902-6ede-427c-8682-000f683fffaa",
+      "Nummer": 2491,
+      "Titels": "MA",
+      "Initialen": "M.",
+      "Tussenvoegsel": null,
+      "Achternaam": "Agema",
+      "Voornamen": "Marie-Fleur",
+      "Roepnaam": "Fleur",
+      "Geslacht": "vrouw",
+      "Functie": "Tweede Kamerlid",
+      "Geboortedatum": "1976-09-16T00:00:00+02:00",
+      "Geboorteplaats": "Purmerend",
+      "Geboorteland": "Nederland",
+      "Overlijdensdatum": null,
+      "Overlijdensplaats": null,
+      "Woonplaats": "'s-Gravenhage",
+      "Land": "NL",
+      "Fractielabel": null,
+      "ContentType": "image/jpeg",
+      "ContentLength": 456668,
+      "GewijzigdOp": "2023-12-01T15:59:58+01:00",
+      "ApiGewijzigdOp": "2023-12-01T15:00:24.6710401Z",
+      "Verwijderd": false
+    },
+...
+  ]
+}
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie?$filter=Verwijderd%20eq%20false%20and%20AantalZetels%20ge%201&$format=application/json;odata.metadata=full
+// Fractie database, met filters: Verwijderd = false, en AantalZetels > 1
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Fractie",
+  "value": [
+    {
+      "@odata.type": "#TK.DA.GGM.OData.Fractie",
+      "@odata.id": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)",
+      "@odata.editLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)",
+      "Id@odata.type": "#Guid",
+      "Id": "d720f5af-0516-408a-b830-0b6ffb8a581c",
+      "Nummer": 2753,
+      "Afkorting": "ChristenUnie",
+      "NaamNL": "ChristenUnie",
+      "NaamEN": "Christian Union",
+      "AantalZetels": 3,
+      "AantalStemmen": 212532,
+      "DatumActief@odata.type": "#DateTimeOffset",
+      "DatumActief": "2001-03-15T00:00:00+01:00",
+      "DatumInactief": null,
+      "ContentType": "image/gif",
+      "ContentLength": 2930,
+      "GewijzigdOp@odata.type": "#DateTimeOffset",
+      "GewijzigdOp": "2023-12-14T10:21:08+01:00",
+      "ApiGewijzigdOp@odata.type": "#DateTimeOffset",
+      "ApiGewijzigdOp": "2023-12-14T09:22:19.8046131Z",
+      "Verwijderd": false,
+      "ActiviteitActor@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ActiviteitActor/$ref",
+      "ActiviteitActor@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ActiviteitActor",
+      "ZaakActor@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ZaakActor/$ref",
+      "ZaakActor@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ZaakActor",
+      "DocumentActor@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/DocumentActor/$ref",
+      "DocumentActor@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/DocumentActor",
+      "CommissieVastVacature@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVastVacature/$ref",
+      "CommissieVastVacature@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVastVacature",
+      "CommissieVervangerVacature@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVervangerVacature/$ref",
+      "CommissieVervangerVacature@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVervangerVacature",
+      "FractieZetel@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/FractieZetel/$ref",
+      "FractieZetel@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/FractieZetel",
+      "Stemming@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Stemming/$ref",
+      "Stemming@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Stemming",
+      "Toezegging@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Toezegging/$ref",
+      "Toezegging@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Toezegging",
+      "#TK.DA.GGM.OData.Resource": {
+        "title": "Resource",
+        "target": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/TK.DA.GGM.OData.Resource()"
+      }
+    },
+...
+  ]
+}
+
+
+// https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie?$filter=Verwijderd%20eq%20false%20and%20AantalZetels%20ne%20null&$format=application/json;odata.metadata=full
+// Fractie database, met filters: Verwijderd = false, en AantalZetels != null
+
+{
+  "@odata.context": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/$metadata#Fractie",
+  "value": [
+    {
+      "@odata.type": "#TK.DA.GGM.OData.Fractie",
+      "@odata.id": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)",
+      "@odata.editLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)",
+      "Id@odata.type": "#Guid",
+      "Id": "d720f5af-0516-408a-b830-0b6ffb8a581c",
+      "Nummer": 2753,
+      "Afkorting": "ChristenUnie",
+      "NaamNL": "ChristenUnie",
+      "NaamEN": "Christian Union",
+      "AantalZetels": 3,
+      "AantalStemmen": 212532,
+      "DatumActief@odata.type": "#DateTimeOffset",
+      "DatumActief": "2001-03-15T00:00:00+01:00",
+      "DatumInactief": null,
+      "ContentType": "image/gif",
+      "ContentLength": 2930,
+      "GewijzigdOp@odata.type": "#DateTimeOffset",
+      "GewijzigdOp": "2023-12-14T10:21:08+01:00",
+      "ApiGewijzigdOp@odata.type": "#DateTimeOffset",
+      "ApiGewijzigdOp": "2023-12-14T09:22:19.8046131Z",
+      "Verwijderd": false,
+      "ActiviteitActor@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ActiviteitActor/$ref",
+      "ActiviteitActor@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ActiviteitActor",
+      "ZaakActor@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ZaakActor/$ref",
+      "ZaakActor@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/ZaakActor",
+      "DocumentActor@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/DocumentActor/$ref",
+      "DocumentActor@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/DocumentActor",
+      "CommissieVastVacature@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVastVacature/$ref",
+      "CommissieVastVacature@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVastVacature",
+      "CommissieVervangerVacature@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVervangerVacature/$ref",
+      "CommissieVervangerVacature@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/CommissieVervangerVacature",
+      "FractieZetel@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/FractieZetel/$ref",
+      "FractieZetel@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/FractieZetel",
+      "Stemming@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Stemming/$ref",
+      "Stemming@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Stemming",
+      "Toezegging@odata.associationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Toezegging/$ref",
+      "Toezegging@odata.navigationLink": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/Toezegging",
+      "#TK.DA.GGM.OData.Resource": {
+        "title": "Resource",
+        "target": "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie(d720f5af-0516-408a-b830-0b6ffb8a581c)/TK.DA.GGM.OData.Resource()"
+      }
+    },
+...
+  ]
+}
+
