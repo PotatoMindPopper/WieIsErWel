@@ -20,5 +20,5 @@ def fetch_reports(meeting_ids):
         print("[fetch_report()] URL:", url)  # Debugging
         response = requests.get(url)
         content = response.content
-        reports.append((content, meeting_type))
+        reports.append((content, meeting_type, meeting_id))  # TODO: Add meeting_date
     return reports
