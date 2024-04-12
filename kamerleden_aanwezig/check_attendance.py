@@ -53,12 +53,6 @@ def print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerl
         
         # Fix kamerleden aantal in voor_en_achternamen
         if len(alle_kamerleden) != len(voor_en_achternamen):
-            # print(f"{Fore.RED}Aantal Kamerleden in 2dekmrledn.txt ({len(alle_kamerleden)}) is niet gelijk aan aantal Kamerleden in file.txt ({len(voor_en_achternamen)}).{Fore.RESET}")
-            # print(f"{Fore.RED}Voeg Kamerleden toe aan 2dekmrledn.txt of file.txt.{Fore.RESET}")
-            # return
-            # for kamerlid in alle_kamerleden:
-            #     if kamerlid not in voor_en_achternamen.strip().lower():
-            #         voor_en_achternamen.append(kamerlid)
             # Check of de voor en achternaam ook kamerleden zijn
             for voor_en_achternaam in voor_en_achternamen:
                 # Alleen achternaam, zonder voornaam en naar lowercase
@@ -73,11 +67,6 @@ def print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerl
                 temp_achternaam_4 = voor_en_achternaam.split(" ", 1)[1].strip().lower().replace(" ", "").split("-")[0]
                 # Sommige namen zijn langer of korter vanwege dubbele achternamen
                 for kamerlid in alle_kamerleden:
-                    # if temp_achternaam not in kamerlid and temp_achternaam_2 not in kamerlid:
-                    #     print(f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {temp_achternaam} en {temp_achternaam_2} zijn niet in {kamerlid}")
-                    #     # Verwijder de voor en achternaam uit voor_en_achternamen
-                    #     voor_en_achternamen.remove(voor_en_achternaam)
-                    #     break
                     # Probeer de voor en achternaam te vinden in de kamerleden
                     if temp_achternaam in kamerlid or temp_achternaam_1 in kamerlid or temp_achternaam_2 in kamerlid or temp_achternaam_3 in kamerlid or temp_achternaam_4 in kamerlid:
                         break
@@ -85,35 +74,23 @@ def print_afwezige_kamerleden(attendance_list, alle_kamerleden, aanwezige_kamerl
                     print(f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {temp_achternaam}, {temp_achternaam_1}, {temp_achternaam_2}, {temp_achternaam_3} en {temp_achternaam_4} zijn niet in {alle_kamerleden}")
                     # Verwijder de voor en achternaam uit voor_en_achternamen
                     voor_en_achternamen.remove(voor_en_achternaam)
-
-                # if voor_en_achternaam.split(" ", 1)[1].strip().lower() not in alle_kamerleden:
-                #     print(f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {voor_en_achternaam.split(' ', 1)[1].strip().lower()} is niet in {alle_kamerleden}")
-                #     # Verwijder de voor en achternaam uit voor_en_achternamen
-                #     voor_en_achternamen.remove(voor_en_achternaam)
-                # elif voor_en_achternaam.strip().lower().replace(" ", "") not in alle_kamerleden:
-                #     print(f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {voor_en_achternaam.strip().lower().replace(' ', '')} is niet in {alle_kamerleden}")
-                #     # Verwijder de voor en achternaam uit voor_en_achternamen
-                #     voor_en_achternamen.remove(voor_en_achternaam)
         
-        for index, kamerlid in enumerate(alle_kamerleden):
-            weergavenaam = kamerlid
-            # voor_en_achternaam = voor_en_achternamen[index] # TODO: This doesn't work, due to more names in voor_en_achternamen
-            # voornaam = voor_en_achternaam.split(" ")[0]
-            # achternaam = " ".join(voor_en_achternaam.split(" ")[1:])
-            voornaam, achternaam = voor_en_achternamen[index].split(" ", 1)
-            partij = ""
-            nieuw_kamerlid = (weergavenaam, voornaam, achternaam, partij)
-            # Vervang het kamerlid in alle_kamerleden met het nieuwe kamerlid
-            alle_kamerleden[index] = nieuw_kamerlid
+        # for index, kamerlid in enumerate(alle_kamerleden):
+        #     weergavenaam = kamerlid
+        #     voornaam, achternaam = voor_en_achternamen[index].split(" ", 1)
+        #     partij = ""
+        #     nieuw_kamerlid = (weergavenaam, voornaam, achternaam, partij)
+        #     # Vervang het kamerlid in alle_kamerleden met het nieuwe kamerlid
+        #     alle_kamerleden[index] = nieuw_kamerlid
         
-        # alle_kamerleden = [
-        #     (
-        #         kamerlid, # weergavenaam
-        #         *voor_en_achternamen[alle_kamerleden.index(kamerlid)].split(" "), # voornaam, achternaam # TODO: This doens't work, due to whitespace in last name
-        #         "" # partij
-        #     ) 
-        #     for kamerlid in alle_kamerleden
-        # ]
+        alle_kamerleden = [
+            (
+                kamerlid, # weergavenaam
+                *voor_en_achternamen[alle_kamerleden.index(kamerlid)].split(" ", 1), # voornaam, achternaam
+                "" # partij
+            ) 
+            for kamerlid in alle_kamerleden
+        ]
 
     for kamerlid in alle_kamerleden:
         if kamerlid[0] not in aanwezige_kamerleden:
