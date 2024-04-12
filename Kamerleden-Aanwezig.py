@@ -1,10 +1,16 @@
+import argparse
 from cgi import print_form
 import sys
+from types import NoneType
 from numpy import dtype
 import requests as req
 import xml.etree.ElementTree as ET
 import json
-from datetime import date
+from datetime import date, datetime
+
+import argparse
+
+debug = False
 
 # Get most recent 'vergaderverslag' from tweedekamer API
 def getFile():
@@ -12,50 +18,102 @@ def getFile():
   # 'vergaderverslag' of today will only be published very late today or early tomorrow
   year = today.year
   month = today.month
-  day = today.day - 1
+  day = today.day - 9
   url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
+  if debug:
+    print(url)
   r = req.get(url)
   return r.content
 
 # Get vergaderID from json
 def vergaderID(content):
   val = json.loads(content)
-  return val["value"][0]["Id"]
+  vergaderingen = []
+  for line in val["value"]:
+    if line["Verwijderd"] == False:
+      if debug:
+        print(line)
+      vergaderingen.append(line["Id"])
+  return vergaderingen
   
-# Get 'Vergaderverslag'
+# Get 'Vergaderverslagen'
 def getVerslag(vergID):
-  url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergID}/resource"
-  print(url)
-  r = req.get(url)
-  return r.content
+  r = []
+  for i in range(len(vergID)):
+    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergID[i]}/resource"
+    if debug:
+      print(url)
+    r.append(req.get(url))
+  return r
+
+def laatste(verslagen):
+  tijden = []
+  max = 0
+  max_element = -1
+  for i in range(len(verslagen)):
+    verslag = verslagen[i].content.decode()
+
+    try:
+      root = ET.fromstring(verslag)
+    except:
+      raise Exception("Error parsing XML")
+
+    if root[0][1].text != "Plenaire zaal" or root.attrib['soort'] == "Voorpublicatie":
+      tijden.append(0)
+      continue
+    
+    tijden.append(root.attrib["Timestamp"].split('T')[1].split(':')[0])
+
+  for j in range(len(tijden)):
+    if int(tijden[j]) > max:
+      max = int(tijden[j])
+      max_element = j
+
+  print(max_element, max)
+  return max_element
+
 
 # Parse the XML received from the API
-def parseXML(verslag):
+def parseXML(verslagen):
   next = False
   kamerleden = ""
-  verslag = verslag.decode()
 
+  laatste_vers = laatste(verslagen)
+  verslag = verslagen[laatste_vers].content.decode()
+  
   try:
     root = ET.fromstring(verslag)
   except:
     raise Exception("Error parsing XML")
 
+  print(root.attrib["MessageID"])
   # Parse XML and extract specific element
   ns = {'ns': 'http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0'}
   alinea_elements  = root.findall(".//ns:alineaitem", namespaces=ns)
+  if debug:
+    print(type(alinea_elements))
+    
   for alinea in alinea_elements:
     if next:
       kamerleden = alinea.text
+      if debug:
+        print("Kamerleden: ", kamerleden)
       break
     if "leden der Kamer, te weten:" in str(alinea.text):
       next = True
-  
+      
+
+    if not next or type(kamerleden) == None:
+      print("owaokar")
+      continue
+
   # Format and transform into array
   kamerleden = kamerleden.lower().replace(" en ",",").replace(" ","").split(",")
+  print(type(kamerleden), kamerleden)
   # Last index is invalid ez fix
   return kamerleden[:len(kamerleden)-1]
 
-# Match names from present list to total list
+# Match names from present list (source) to total list (target)
 def stringSimilarity(target, source, matched):
   consistent = 0
   for i in range(len(source)):
@@ -63,16 +121,15 @@ def stringSimilarity(target, source, matched):
       continue
     consistent = 0
     for j in range(len(target)):
-
       # If the length of one of the strings has been reached or if enough letters are matched
       if j >= len(source[i]) or j >= len(target) or consistent >= len(source[i]) - 1:
         # If enough letters are matched accept it
         if consistent >= len(source[i]) - 1:
           matched.append(source[i])
-          # print(f"mathced {target} to {source[i]}")
+          if debug:
+            print(f"mathced {target} to {source[i]}")
           return True
-        else: break
-
+        else:break
       # Compare letters
       if target[j] == source[i][j]:
         consistent += 1
@@ -93,12 +150,13 @@ def presentie(aanwezig):
       integer += 1
     else:
       print(line.rstrip('\n'))
+      pass
   
-  # Not everyone has been matched
+  print(integer, "/", len(aanwezig))
+  # Check if everyone has been matched
   if integer is not len(aanwezig):
     raise Exception(f"Aantal Kamerleden matcht niet met het aanwezige aantal is {integer} maar moet zijn {len(aanwezig)}")
 
-  print(integer, "/", len(aanwezig))
   return aanwezig
     
 # Make nice graph who is present and who is not
@@ -108,10 +166,18 @@ def makeGraph(aanwezig):
 def main():
   content = getFile()
   vergID = vergaderID(content)
-  verslag = getVerslag(vergID)
-  kamerleden = parseXML(verslag)
+  if debug:
+    print(vergID[0])
+  verslagen = getVerslag(vergID)
+  kamerleden = parseXML(verslagen)
   aanwezig = presentie(kamerleden)
   makeGraph(aanwezig)
 
 if __name__=="__main__":
+  parser = argparse.ArgumentParser(description="Set debug mode for printing")
+  parser.add_argument("--debug", default=False, type=bool, metavar=debug,
+                      help="Set debug to True if you want to see the output of\
+                            the getting and parsing process")
+  args = parser.parse_args()
+  debug = args.debug
   main()
