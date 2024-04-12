@@ -9,6 +9,67 @@ import os
 from kamerleden_aanwezig import FILES_DIR
 
 
+def check_names(alle_kamerleden, voor_en_achternamen):
+    """
+    Check of de namen van de Kamerleden overeenkomen met de namen in de lijst
+
+    :param alle_kamerleden: Een lijst van alle Kamerleden
+    :param voor_en_achternamen: Een lijst van voor en achternamen
+    :return: Een lijst van voor en achternamen
+    """
+    # Fix kamerleden aantal in voor_en_achternamen
+    if len(alle_kamerleden) != len(voor_en_achternamen):
+        # Check of de voor en achternaam ook kamerleden zijn
+        for voor_en_achternaam in voor_en_achternamen:
+            # Alleen achternaam, zonder voornaam en naar lowercase
+            temp_achternaam = voor_en_achternaam.split(" ", 1)[1].strip().lower()
+            # Alleen achternaam, zonder voornaam en naar lowercase, zonder
+            # whitespace
+            temp_achternaam_1 = (
+                voor_en_achternaam.split(" ", 1)[1].strip().lower().replace(" ", "")
+            )
+            # Naam zonder whitespace en naar lowercase
+            temp_achternaam_2 = voor_en_achternaam.strip().lower().replace(" ", "")
+            # Alleen achternaam, zonder voornaam en naar lowercase, zonder
+            # whitespace en dash
+            temp_achternaam_3 = (
+                voor_en_achternaam.split(" ", 1)[1]
+                .strip()
+                .lower()
+                .replace(" ", "")
+                .replace("-", "")
+            )
+            # Alleen achternaam, zonder voornaam en naar lowercase, zonder
+            # whitespace en zonder gedeelte achter de dash
+            temp_achternaam_4 = (
+                voor_en_achternaam.split(" ", 1)[1]
+                .strip()
+                .lower()
+                .replace(" ", "")
+                .split("-")[0]
+            )
+            # Sommige namen zijn langer of korter vanwege dubbele
+            # achternamen
+            for kamerlid in alle_kamerleden:
+                # Probeer de voor en achternaam te vinden in de kamerleden
+                if (
+                    temp_achternaam in kamerlid
+                    or temp_achternaam_1 in kamerlid
+                    or temp_achternaam_2 in kamerlid
+                    or temp_achternaam_3 in kamerlid
+                    or temp_achternaam_4 in kamerlid
+                ):
+                    break
+            else:
+                print(
+                    f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {temp_achternaam}, {temp_achternaam_1}, {temp_achternaam_2}, {temp_achternaam_3} en {temp_achternaam_4} zijn geprobeerd."
+                )
+                # Verwijder de voor en achternaam uit voor_en_achternamen
+                voor_en_achternamen.remove(voor_en_achternaam)
+
+    return voor_en_achternamen
+
+
 def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
     """
     Print de afwezige Kamerleden
@@ -16,18 +77,6 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
     :param alle_kamerleden: Een lijst van alle Kamerleden
     :param aanwezige_kamerleden: Een lijst van Kamerleden die aanwezig waren
     """
-    header_length = 38 + 35 + 30 + 18 + 17 + 5 * 2
-
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
-    print(
-        f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Afwezige Kamerleden':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}"
-    )
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
-    print(
-        f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}|{Style.RESET_ALL}"
-    )
-    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
-
     if not isinstance(alle_kamerleden[0], tuple):
         with open(os.path.join(FILES_DIR, "file.txt"), "r", encoding="utf-8") as file:
             voor_en_achternamen = [line.strip() for line in file.readlines()]
@@ -48,52 +97,7 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
         # Stephan van Baarle
         # Mpanzu Bamenga
         # ...
-
-        # Fix kamerleden aantal in voor_en_achternamen
-        if len(alle_kamerleden) != len(voor_en_achternamen):
-            # Check of de voor en achternaam ook kamerleden zijn
-            for voor_en_achternaam in voor_en_achternamen:
-                # Alleen achternaam, zonder voornaam en naar lowercase
-                temp_achternaam = voor_en_achternaam.split(" ", 1)[1].strip().lower()
-                # Alleen achternaam, zonder voornaam en naar lowercase, zonder whitespace
-                temp_achternaam_1 = (
-                    voor_en_achternaam.split(" ", 1)[1].strip().lower().replace(" ", "")
-                )
-                # Naam zonder whitespace en naar lowercase
-                temp_achternaam_2 = voor_en_achternaam.strip().lower().replace(" ", "")
-                # Alleen achternaam, zonder voornaam en naar lowercase, zonder whitespace en dash
-                temp_achternaam_3 = (
-                    voor_en_achternaam.split(" ", 1)[1]
-                    .strip()
-                    .lower()
-                    .replace(" ", "")
-                    .replace("-", "")
-                )
-                # Alleen achternaam, zonder voornaam en naar lowercase, zonder whitespace en zonder gedeelte achter de dash
-                temp_achternaam_4 = (
-                    voor_en_achternaam.split(" ", 1)[1]
-                    .strip()
-                    .lower()
-                    .replace(" ", "")
-                    .split("-")[0]
-                )
-                # Sommige namen zijn langer of korter vanwege dubbele achternamen
-                for kamerlid in alle_kamerleden:
-                    # Probeer de voor en achternaam te vinden in de kamerleden
-                    if (
-                        temp_achternaam in kamerlid
-                        or temp_achternaam_1 in kamerlid
-                        or temp_achternaam_2 in kamerlid
-                        or temp_achternaam_3 in kamerlid
-                        or temp_achternaam_4 in kamerlid
-                    ):
-                        break
-                else:
-                    print(
-                        f"[print_afwezige_kamerleden()] {voor_en_achternaam} is niet gevonden. {temp_achternaam}, {temp_achternaam_1}, {temp_achternaam_2}, {temp_achternaam_3} en {temp_achternaam_4} zijn niet in {alle_kamerleden}"
-                    )
-                    # Verwijder de voor en achternaam uit voor_en_achternamen
-                    voor_en_achternamen.remove(voor_en_achternaam)
+        voor_en_achternamen = check_names(alle_kamerleden, voor_en_achternamen)
 
         alle_kamerleden = [
             (
@@ -105,6 +109,19 @@ def print_afwezige_kamerleden(alle_kamerleden, aanwezige_kamerleden):
             )
             for kamerlid in alle_kamerleden
         ]
+
+    header_length = 38 + 35 + 30 + 18 + 17 + 5 * 2
+
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    print(
+        f"{Fore.BLACK}{Style.BRIGHT}|{Style.RESET_ALL}{Style.BRIGHT}{'Afwezige Kamerleden':^{header_length - 2}}{Fore.BLACK}|{Style.RESET_ALL}"
+    )
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
+    # Breedste weergavenaam: faber-vandeklashorst (20)
+    print(
+        f"{Fore.BLACK}{Style.BRIGHT}| {Style.RESET_ALL}{'Weergavenaam':<44}{'Voornaam':<44}{'Achternaam':<44}{'Partij':<13}{Fore.BLACK}|{Style.RESET_ALL}"
+    )
+    print(f"{Fore.BLACK}{Style.BRIGHT}{'-' * header_length}{Style.RESET_ALL}")
 
     for kamerlid in alle_kamerleden:
         if kamerlid[0] not in aanwezige_kamerleden:
