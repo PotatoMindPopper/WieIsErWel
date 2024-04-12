@@ -224,59 +224,67 @@ def get_fractie_zetel_personen():
 
 
 def get_tweede_kamer_leden():
-    fracties = get_fracties()
-    fractie_zetels = get_fractie_zetels()
+    """
+    Haalt de leden van de Tweede Kamer op
+    
+    :return: Een lijst van leden van de Tweede Kamer
+    """
+
+    # Haal de personen informatie op
     personen = get_personen()
+    # Haal de informatie op met links tussen fractie zetels en personen
     fractie_zetel_personen = get_fractie_zetel_personen()
+    # Haal de informatie op van de fractie zetels die bij een fractie horen
+    fractie_zetels = get_fractie_zetels()
+    # Haal de informatie op van de fracties
+    fracties = get_fracties()
 
     import json
 
     print(
-        "[get_tweede_kamer_leden()] Fracties:", json.dumps(fracties, indent=4)
+        f"[get_tweede_kamer_leden()] Personen(size: {len(personen)}): {json.dumps(personen, indent=4)}"
     )  # Debugging
     print(
-        "[get_tweede_kamer_leden()] Fractie zetels:",
-        json.dumps(fractie_zetels, indent=4),
+        f"[get_tweede_kamer_leden()] Fractie zetel personen(size: {len(fractie_zetel_personen)}): {json.dumps(fractie_zetel_personen, indent=4)}"
     )  # Debugging
     print(
-        "[get_tweede_kamer_leden()] Personen:", json.dumps(personen, indent=4)
+        f"[get_tweede_kamer_leden()] Fractie zetels(size: {len(fractie_zetels)}): {json.dumps(fractie_zetels, indent=4)}"
     )  # Debugging
     print(
-        "[get_tweede_kamer_leden()] Fractie zetel personen:",
-        json.dumps(fractie_zetel_personen, indent=4),
+        f"[get_tweede_kamer_leden()] Fracties(size: {len(fracties)}): {json.dumps(fracties, indent=4)}"
     )  # Debugging
 
-    # Maak een lijst van leden van de Tweede Kamer
-    tweede_kamer_leden = []
-    for fractie_zetel_id, (persoon_id, functie) in fractie_zetel_personen.items():
-        # fractie_id = fractie_zetels[fractie_zetel_id]
-        # fractie_naam = fracties[fractie_id]
+    # Maak een lijst van leden van de Tweede Kamer (Let op: er kunnen meer
+    # fractie_zetel_personen zijn dan personen)
+    leden_tweede_kamer = []
+    for fractie_zetel_persoon_id, (persoon_id, functie) in fractie_zetel_personen.items():
+        # if persoon_id not in personen:
+        #     # Persoon niet gevonden
+        #     continue
         # persoon = personen[persoon_id]
-        # leden_tweede_kamer.append(
-        #     {
-        #         "naam": persoon["naam"],
-        #         "fractie": fractie_naam,
-        #         "functie": functie,
-        #     }
-        # )
+        # fractie_zetel_id = fractie_zetel_persoon_id
+        # if fractie_zetel_id not in fractie_zetels:
+        #     # Fractie zetel niet gevonden
+        #     continue
+        # fractie_id = fractie_zetels[fractie_zetel_id]
+        # fractie = fracties[fractie_id]
+        persoon = personen.get(persoon_id)
+        if not persoon:
+            # Persoon niet gevonden
+            continue
+        fractie_zetel_id = fractie_zetel_persoon_id
         fractie_id = fractie_zetels.get(fractie_zetel_id)
-        fractie_naam = fracties.get(fractie_id, "Onbekend")
-        persoon_info = personen.get(persoon_id)
-        print(
-            f"[get_tweede_kamer_leden()] Fractie ID: {fractie_id}, Fractie naam: {fractie_naam}"
-        )
-        print(
-            f"[get_tweede_kamer_leden()] Persoon ID: {persoon_id}, Persoon info: {persoon_info}"
-        )
-        if persoon_info:
-            tweede_kamer_leden.append(
-                {
-                    "naam": persoon_info["naam"],
-                    "fractie": fractie_naam,
-                    "functie": functie,
-                }
-            )
-    return tweede_kamer_leden
+        if not fractie_id:
+            # Fractie zetel niet gevonden
+            continue
+        fractie = fracties.get(fractie_id)
+        if not fractie:
+            # Fractie niet gevonden
+            continue
+        persoon["fractie"] = fractie
+        persoon["functie"] = functie
+        leden_tweede_kamer.append(persoon)
+    return leden_tweede_kamer
 
 
 # Ophalen van de leden van de Tweede Kamer
