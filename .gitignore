@@ -143,3 +143,7 @@ install_manifest.txt
 .env_windows/
 .env_linux/
 *.xml
+Alle Kamerleden _ Tweede Kamer der Staten-Generaal.html
+Alle Kamerleden _ Tweede Kamer der Staten-Generaal_files/
+leden_tweede_kamer.json
+test_leden_tweede_kamer.json
