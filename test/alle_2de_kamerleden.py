@@ -40,8 +40,35 @@ def get_fracties():
 
     # Haal de fracties op
     response = requests.get(API_URL + "/Fractie")
+
     # Maak een dictionary met fractie ID's als keys en fractie namen als values
-    return {fractie["Id"]: fractie["NaamNL"] for fractie in response.json()["value"]}
+    fracties = {}
+    # TODO: Gebruik "UTF-8" encoding voor de Nederlandse namen van de fracties
+    for fractie in response.json()["value"]:
+        fractie_id = fractie["Id"]
+        # Check of de fractie "stemmen" of "zetels" heeft, zo niet, verwijder de
+        # fractie
+        if "AantalZetels" not in fractie and "AantalStemmen" not in fractie:
+            # Attributen "AantalZetels" en "AantalStemmen" zijn niet aanwezig
+            continue
+        if "AantalZetels" in fractie and not fractie["AantalZetels"]:
+            # Attribuut "AantalZetels" is aanwezig, maar de waarde is leeg
+            continue
+        if "AantalStemmen" in fractie and not fractie["AantalStemmen"]:
+            # Attribuut "AantalStemmen" is aanwezig, maar de waarde is leeg
+            continue
+        
+        # Check of de fractie een Nederlandse naam heeft, zo niet gebruik de
+        # Engelse naam, zo niet gebruik de afkorting
+        if "NaamNL" in fractie and fractie["NaamNL"]:
+            fracties[fractie_id] = fractie["NaamNL"]
+        elif "NaamEN" in fractie and fractie["NaamEN"]:
+            fracties[fractie_id] = fractie["NaamEN"]
+        else:
+            fracties[fractie_id] = fractie["Afkorting"]
+    return fracties
+    
+    # return {fractie["Id"]: fractie["NaamNL"] for fractie in response.json()["value"]}
 
 
 def get_fractie_zetels():
