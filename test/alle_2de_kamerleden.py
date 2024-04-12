@@ -179,6 +179,18 @@ def get_fracties():
     :return: Een dictionary met fractie ID's als keys en fractie namen als
              values
     """
+    # TODO: Bespaart de for loop aan het einde van deze functie, omdat de
+    #       API al filtert op "AantalZetels%20ge%201"
+    # https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie?$filter=Verwijderd%20eq%20false%20and%20AantalZetels%20ge%201
+    # response = requests.get(
+    #     API_URL
+    #     + "/Fractie"
+    #     + "?"
+    #     + "$filter="
+    #     + "Verwijderd%20eq%20false"
+    #     + "%20and%20"
+    #     + "AantalZetels%20ge%201" # TODO: Check of niet "AantalStemmen" gebruikt moet worden
+    # )
 
     # Voorbeeld van een request naar de Tweede Kamer API en de response
     # response = requests.get("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Fractie")
