@@ -157,18 +157,28 @@ def get_personen():
         + "%20and%20"
         + "Functie%20eq%20%27Tweede%20Kamerlid%27"
     )
+
     # Maak een dictionary met persoon ID's als keys en persoon informatie als
     # values
-    return {
-        # persoon["Id"]: {
-        #     "naam": f"{persoon['Voornamen']} {persoon['Tussenvoegsel'] or ''} {persoon['Achternaam']}".strip(),
-        # }
-        # TODO: Kies tussen de voornamen of de roepnaam van de persoon
-        persoon["Id"]: {
-            "naam": f"{persoon['Roepnaam']} {'' if persoon['Tussenvoegsel'] is None or persoon['Tussenvoegsel'] == 'none' else persoon['Tussenvoegsel'] + ' '}{persoon['Achternaam']}".strip(),
+    personen = {}
+    # TODO: Gebruik "UTF-8" encoding voor de namen van de personen
+    for persoon in response.json()["value"]:
+        persoon_id = persoon["Id"]
+        voornaam = persoon[
+            "Voornamen"
+        ]  # TODO: Kies tussen de voornamen of de roepnaam van de persoon
+        tussenvoegsel = persoon["Tussenvoegsel"] or ""
+        achternaam = persoon["Achternaam"]
+        if tussenvoegsel:
+            naam = f"{voornaam} {tussenvoegsel} {achternaam}"
+        else:
+            naam = f"{voornaam} {achternaam}"
+        personen[persoon_id] = {
+            "naam": naam,
+            "fractie": None,  # NOTE: Wordt later ingevuld
+            "functie": None,  # NOTE: Wordt later ingevuld
         }
-        for persoon in response.json()["value"]
-    }
+    return personen
 
 
 def get_fractie_zetel_personen():
