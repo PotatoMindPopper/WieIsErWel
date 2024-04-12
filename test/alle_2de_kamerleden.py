@@ -1,7 +1,10 @@
 import requests
+import json
+import datetime
 
 
 API_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
+CACHE_DAYS = 1
 
 
 def get_personen():
@@ -74,7 +77,14 @@ def get_personen():
         else:
             naam = f"{voornaam} {achternaam}"
         personen[persoon_id] = {
-            "naam": naam, # TODO: Maybe convert this to a dictionary with first name, last name, etc.
+            # "naam": naam, # TODO: Maybe convert this to a dictionary with first name, last name, etc.
+            "naam": {
+                "volledig": naam,
+                "roepnaam": persoon["Roepnaam"],
+                "voornaam": voornaam,
+                "tussenvoegsel": tussenvoegsel,
+                "achternaam": achternaam,
+            },
             "fractie": None,  # NOTE: Wordt later ingevuld
             "functie": None,  # NOTE: Wordt later ingevuld
         }
@@ -116,8 +126,8 @@ def get_fractie_zetel_personen():
     # Maak een dictionary met fractie zetel ID's als keys en persoon ID's en
     # functies als values
     return {
-        fractie_zetel_persoon["FractieZetel_Id"]: (
-            fractie_zetel_persoon["Persoon_Id"],
+        fractie_zetel_persoon["Persoon_Id"]: (
+            fractie_zetel_persoon["FractieZetel_Id"],
             fractie_zetel_persoon["Functie"],
         )
         for fractie_zetel_persoon in response.json()["value"]
@@ -211,25 +221,30 @@ def get_fracties():
         if "AantalStemmen" in fractie and not fractie["AantalStemmen"]:
             # Attribuut "AantalStemmen" is aanwezig, maar de waarde is leeg
             continue
-        
+
         # Check of de fractie een Nederlandse naam heeft, zo niet gebruik de
         # Engelse naam, zo niet gebruik de afkorting
-        # TODO: Maybe convert this to a dictionary with Dutch name, English name, etc.
-        if "NaamNL" in fractie and fractie["NaamNL"]:
-            fracties[fractie_id] = fractie["NaamNL"]
-        elif "NaamEN" in fractie and fractie["NaamEN"]:
-            fracties[fractie_id] = fractie["NaamEN"]
-        else:
-            fracties[fractie_id] = fractie["Afkorting"]
+        # # TODO: Maybe convert this to a dictionary with Dutch name, English name, etc.
+        # if "NaamNL" in fractie and fractie["NaamNL"]:
+        #     fracties[fractie_id] = fractie["NaamNL"]
+        # elif "NaamEN" in fractie and fractie["NaamEN"]:
+        #     fracties[fractie_id] = fractie["NaamEN"]
+        # else:
+        #     fracties[fractie_id] = fractie["Afkorting"]
+        fracties[fractie_id] = {
+            "nederlands": fractie["NaamNL"],
+            "engels": fractie["NaamEN"],
+            "afkorting": fractie["Afkorting"],
+        }
     return fracties
-    
+
     # return {fractie["Id"]: fractie["NaamNL"] for fractie in response.json()["value"]}
 
 
 def get_tweede_kamer_leden():
     """
     Haalt de leden van de Tweede Kamer op
-    
+
     :return: Een lijst van leden van de Tweede Kamer
     """
 
@@ -260,27 +275,118 @@ def get_tweede_kamer_leden():
     # Maak een lijst van leden van de Tweede Kamer (Let op: er kunnen meer
     # fractie_zetel_personen zijn dan personen)
     leden_tweede_kamer = []
-    for fractie_zetel_persoon_id, (persoon_id, functie) in fractie_zetel_personen.items():
-        persoon = personen.get(persoon_id)
-        if not persoon:
-            # Persoon niet gevonden
-            print(f"[get_tweede_kamer_leden()] Persoon met ID {persoon_id} niet gevonden.")
-            continue
-        fractie_zetel_id = fractie_zetel_persoon_id
-        fractie_id = fractie_zetels.get(fractie_zetel_id)
-        if not fractie_id:
-            # Fractie zetel niet gevonden
-            print(f"[get_tweede_kamer_leden()] Fractie zetel met ID {fractie_zetel_id} niet gevonden.")
-            continue
-        fractie = fracties.get(fractie_id)
-        if not fractie:
-            # Fractie niet gevonden
-            print(f"[get_tweede_kamer_leden()] Fractie met ID {fractie_id} niet gevonden.")
-            continue
-        persoon["fractie"] = fractie
-        persoon["functie"] = functie
-        leden_tweede_kamer.append(persoon)
+    for persoon_id in personen:
+        if persoon_id in fractie_zetel_personen:
+            fractie_zetel_id, functie = fractie_zetel_personen.get(persoon_id)
+            if not fractie_zetel_id:
+                # print(f"[get_tweede_kamer_leden()] Fractie zetel ID niet gevonden voor persoon ID: {persoon_id}")
+                # continue
+                leden_tweede_kamer.append(
+                    {
+                        "naam": personen[persoon_id]["naam"],
+                        "fractie": {
+                            "nederlands": "Onbekend",
+                            "engels": "Unknown",
+                            "afkorting": "ONB",
+                        },
+                        "functie": functie,
+                    }
+                )
+                continue
+            fractie_id = fractie_zetels.get(fractie_zetel_id)
+            if not fractie_id:
+                # print(f"[get_tweede_kamer_leden()] Fractie zetel niet gevonden voor persoon ID: {persoon_id}")
+                # continue
+                leden_tweede_kamer.append(
+                    {
+                        "naam": personen[persoon_id]["naam"],
+                        "fractie": {
+                            "nederlands": "Onbekend",
+                            "engels": "Unknown",
+                            "afkorting": "ONB",
+                        },
+                        "functie": functie,
+                    }
+                )
+                continue
+            fractie = fracties.get(fractie_id)
+            if not fractie:
+                # print(f"[get_tweede_kamer_leden()] Fractie niet gevonden voor persoon ID: {persoon_id}")
+                # continue
+                leden_tweede_kamer.append(
+                    {
+                        "naam": personen[persoon_id]["naam"],
+                        "fractie": {
+                            "nederlands": "Onbekend",
+                            "engels": "Unknown",
+                            "afkorting": "ONB",
+                        },
+                        "functie": functie,
+                    }
+                )
+                continue
+            leden_tweede_kamer.append(
+                {
+                    "naam": personen[persoon_id]["naam"],
+                    "fractie": fractie,
+                    "functie": functie,
+                }
+            )
+        else:
+            # print(f"[get_tweede_kamer_leden()] Persoon ID niet gevonden: {persoon_id}")
+            leden_tweede_kamer.append(
+                {
+                    "naam": personen[persoon_id]["naam"],
+                    "fractie": {
+                        "nederlands": "Onbekend",
+                        "engels": "Unknown",
+                        "afkorting": "ONB",
+                    },
+                    "functie": "Onbekend",
+                }
+            )
     return leden_tweede_kamer
+
+
+def save_tweede_kamer_leden(leden_tweede_kamer):
+    """
+    Slaat de leden van de Tweede Kamer op
+
+    Doe dit als onderdeel van een cache mechanisme
+
+    :param leden_tweede_kamer: Een lijst van leden van de Tweede Kamer
+    """
+
+    data = {
+        "datum": datetime.datetime.now().isoformat(),
+        "leden_tweede_kamer": leden_tweede_kamer,
+    }
+
+    # Sla de leden van de Tweede Kamer op
+    with open("leden_tweede_kamer.json", "w", encoding="utf-8") as file:
+        json.dump(data, file)
+        
+    # DEBUGGING
+    with open("test_leden_tweede_kamer.json", "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+
+
+def load_tweede_kamer_leden():
+    """
+    Laadt de leden van de Tweede Kamer
+
+    Doe dit als onderdeel van een cache mechanisme
+
+    :return: Een lijst van leden van de Tweede Kamer
+    """
+
+    try:
+        # Laad de leden van de Tweede Kamer
+        with open("leden_tweede_kamer.json", "r", encoding="utf-8") as file:
+            data = json.load(file)
+        return data
+    except FileNotFoundError:
+        return None
 
 
 def main():
@@ -288,17 +394,55 @@ def main():
     Hoofdfunctionaliteit
     """
 
-    # Ophalen van de leden van de Tweede Kamer
-    leden_tweede_kamer = get_tweede_kamer_leden()
-    
+    # Laden van de leden van de Tweede Kamer
+    data = load_tweede_kamer_leden()
+
+    # Check de cache datum van de leden van de Tweede Kamer
+    if data:
+        print(f"[main()] Cache datum: {data['datum']}")
+    if data and datetime.datetime.now() - datetime.datetime.fromisoformat(
+        data["datum"]
+    ) < datetime.timedelta(days=7):
+        print("[main()] Gebruik maken van de cache.")
+        leden_tweede_kamer = data["leden_tweede_kamer"]
+    else:
+        # Ophalen van de leden van de Tweede Kamer
+        leden_tweede_kamer = get_tweede_kamer_leden()
+
     # Check of er leden van de Tweede Kamer zijn gevonden
     if not leden_tweede_kamer:
         print("[main()] Geen leden van de Tweede Kamer gevonden.")
         return
 
+    # Check het aantal leden van de Tweede Kamer
+    if len(leden_tweede_kamer) != 150:
+        print(f"[main()] Aantal leden van de Tweede Kamer: {len(leden_tweede_kamer)}")
+    else:
+        print("[main()] Alle leden van de Tweede Kamer zijn gevonden.")
+
     # Printen van de leden van de Tweede Kamer
     for lid in leden_tweede_kamer:
-        print(f"[main()] Naam: {lid['naam']}, Fractie: {lid['fractie']}, Functie: {lid['functie']}")
+        # print(f"[main()] Naam: {lid['naam']}, Fractie: {lid['fractie']}, Functie: {lid['functie']}")
+        print(
+            f"Naam: {lid['naam']['volledig']}, Fractie: {lid['fractie']['nederlands']}, Functie: {lid['functie']}"
+        )
+
+    # Sorteer de leden van de Tweede Kamer op achternaam
+    leden_tweede_kamer.sort(key=lambda lid: lid["naam"]["achternaam"])
+
+    # Printen van de leden van de Tweede Kamer gesorteerd op achternaam
+    print("\nLeden van de Tweede Kamer gesorteerd op achternaam:")
+    for lid in leden_tweede_kamer:
+        print(
+            f"Naam: {lid['naam']['volledig']}, Fractie: {lid['fractie']['nederlands']}, Functie: {lid['functie']}"
+        )
+
+    # Opslaan van de leden van de Tweede Kamer als onderdeel van een cache
+    if not data or datetime.datetime.now() - datetime.datetime.fromisoformat(
+        data["datum"]
+    ) >= datetime.timedelta(days=7):
+        # Opslaan van de leden van de Tweede Kamer
+        save_tweede_kamer_leden(leden_tweede_kamer)
 
 
 if __name__ == "__main__":
