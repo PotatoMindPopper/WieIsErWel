@@ -6,19 +6,18 @@ from numpy import dtype
 import requests as req
 import xml.etree.ElementTree as ET
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import argparse
 
 debug = False
 
 # Get most recent 'vergaderverslag' from tweedekamer API
-def getFile():
-  today = date.today()
-  # 'vergaderverslag' of today will only be published very late today or early tomorrow
-  year = today.year
-  month = today.month
-  day = today.day - 1
+def getURLContent(datum):
+  # if date.isoweekday(datum) == 7: print("No reports on Sunday!") & exit(1)
+  year = datum.year
+  month = datum.month
+  day = datum.day
   url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
   if debug:
     print(url)
@@ -80,6 +79,10 @@ def parseXML(verslagen):
   kamerleden = ""
 
   laatste_vers = laatste(verslagen)
+  
+  if  laatste_vers == -1:
+    return -1
+  
   verslag = verslagen[laatste_vers].content.decode()
   
   try:
@@ -104,7 +107,8 @@ def parseXML(verslagen):
       
     if not next or type(kamerleden) == None:
       continue
-
+  if type(kamerleden) == None:
+    return -1
   # Format and transform into array
   kamerleden = kamerleden.lower().replace(" en ",",").replace(" ","").split(",")
   if debug:
@@ -154,7 +158,7 @@ def presentie(aanwezig):
   print(integer, "/", len(aanwezig))
   # Check if everyone has been matched
   if integer is not len(aanwezig):
-    raise Exception(f"Aantal Kamerleden matcht niet met het aanwezige aantal is {integer} maar moet zijn {len(aanwezig)}")
+    print(f"Aantal Kamerleden matcht niet met het aanwezige aantal is {integer} maar moet zijn {len(aanwezig)}")
 
   return aanwezig
     
@@ -162,15 +166,71 @@ def presentie(aanwezig):
 def makeGraph(aanwezig):
   pass
 
-def main():
-  content = getFile()
+def aanwezigheid(datum):
+  # Check of er wel een echte datum doorgegeven is
+  assert type(datum) == date
+  # Haal het verslag op
+  content = getURLContent(datum)
+  # Haal de vergaderID uit het verslag
   vergID = vergaderID(content)
+  # Als de ID nul is, is er geen vergaderverslag
+  if len(vergID) == 0:
+    return
+
   if debug:
     print(vergID[0])
+  # Haal het verslag op a.h.v. de vergaderID
   verslagen = getVerslag(vergID)
+  # Haal de lijst met kamerleden uit de verslagen
   kamerleden = parseXML(verslagen)
-  aanwezig = presentie(kamerleden)
-  makeGraph(aanwezig)
+  # Check of er wel echt iets uitgekomen is
+  if kamerleden == -1:
+    return
+  # Geef de aanwezigen terug aan de bovenliggende functie 
+  return presentie(kamerleden)
+  
+
+def main():
+  str = input("1: Zelf datum opgeven \n2: Bereik van data: ")
+  if int(str) == 1:
+    str = input("Geef een datum op (YYY-MM-DD): ")
+    # Check de invoer voor yyyy-mm-dd
+    assert str.split('-')[0].__len__() == 4
+    assert str.split('-')[1].__len__() == 2
+    assert str.split('-')[2].__len__() == 2
+    datum = date.fromisoformat(str)
+    aanwezig = aanwezigheid(datum)
+  elif int(str) == 2:
+    # str1 = input("Geef een eerste datum op (YYY-MM-DD): ")
+    # str2 = input("Geef een tweede datum op (YYY-MM-DD): ")
+    str1 = "2024-04-15"
+    str2 = "2024-04-18"
+
+    assert str1.split('-')[0].__len__() == 4
+    assert str1.split('-')[1].__len__() == 2
+    assert str1.split('-')[2].__len__() == 2
+    datum1 = date.fromisoformat(str1)
+
+    assert str2.split('-')[0].__len__() == 4
+    assert str2.split('-')[1].__len__() == 2
+    assert str2.split('-')[2].__len__() == 2
+    datum2 = date.fromisoformat(str2)
+
+    delta = datum2 - datum1
+    
+    for _ in range(delta.days):
+      datum1 += timedelta(days=1)
+      if datum1.isoweekday == 6 or datum1.isoweekday == 7:
+        continue
+      print(datum1)
+      if(datum1 == date.today()):
+        print("Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht")
+        continue
+      aanwezig = aanwezigheid(datum1)
+  else:
+    print("Verkeerde invoer")
+  
+
 
 if __name__=="__main__":
   parser = argparse.ArgumentParser(description="Set debug mode for printing")
