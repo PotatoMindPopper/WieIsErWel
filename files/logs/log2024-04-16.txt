@@ -1,6 +1,6 @@
+Aanwezig:
 aardema
 aartsen
-elabassi
 agema
 vanbaarle
 bamenga
@@ -16,7 +16,6 @@ martinbosma
 boswijk
 boutkan
 brekelmans
-bromet
 bruyning
 vanderburg
 bushoff
@@ -29,13 +28,14 @@ dassen
 deen
 tonyvandijck
 dijk
-ingevandijk
-olgervandijk
 diederikvandijk
 emielvandijk
+ingevandijk
+olgervandijk
 dobbe
 eerdmans
 vaneijk
+elabassi
 ellian
 ergin
 erkens
@@ -53,7 +53,6 @@ hermans
 hertzberger
 heutink
 vanhijum
-hirsch
 vanderhoeff
 holman
 dehoop
@@ -64,7 +63,6 @@ jetten
 léondejong
 joseph
 kahraman
-kamminga
 kathmann
 keijzer
 vankent
@@ -79,7 +77,6 @@ krul
 lahlah
 vanderlee
 maatoug
-madlener
 maeijer
 markuszower
 martens-america
@@ -93,7 +90,6 @@ edgarmulder
 mutluer
 nijhof-leeuw
 vannispen
-nordkamp
 omtzigt
 vanoostenbruggen
 ouwehand
@@ -109,7 +105,9 @@ vanderplas
 podt
 pool
 postma
+rajkowski
 ram
+rooderkerk
 deroon
 sixdijkstra
 slagt-tichelman
@@ -131,7 +129,6 @@ vandervelde
 veldkamp
 veltman
 vermeer
-vijlbrief
 vlottes
 vondeling
 devree
@@ -139,12 +136,18 @@ aukjedevries
 vanvroonhoven
 vanderwal
 welzijn
+vanderwerf
 westerveld
 white
 wilders
+zeedijk
+
+Afwezig:
+bromet
+hirsch
+madlener
+nordkamp
+ram
+vijlbrief
 yeşilgöz-zegerius
 vanzanten
-zeedijk
-vanderwerf
-rajkowski
-rooderkerk

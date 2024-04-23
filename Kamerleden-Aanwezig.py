@@ -1,4 +1,7 @@
 import argparse
+import pandas as pd
+import numpy as np
+import array
 from cgi import print_form
 import sys
 from types import NoneType
@@ -14,7 +17,9 @@ debug = False
 
 # Get most recent 'vergaderverslag' from tweedekamer API
 def getURLContent(datum):
-  # if date.isoweekday(datum) == 7: print("No reports on Sunday!") & exit(1)
+  # Write to log file
+  f = open(f"files/logs/log{str(datum)}.txt", "w")
+  f.close() 
   year = datum.year
   month = datum.month
   day = datum.day
@@ -107,7 +112,7 @@ def parseXML(verslagen):
       
     if not next or type(kamerleden) == None:
       continue
-  if type(kamerleden) == None:
+  if type(kamerleden) == type(None):
     return -1
   # Format and transform into array
   kamerleden = kamerleden.lower().replace(" en ",",").replace(" ","").split(",")
@@ -142,6 +147,7 @@ def stringSimilarity(target, source, matched):
 # Checking presence
 def presentie(aanwezig):
   matched = []
+  afwezig = []
   integer = 0
   # Open file with all members
   f = open("files/2dekmrledn.txt", 'r')
@@ -153,18 +159,28 @@ def presentie(aanwezig):
       integer += 1
     else:
       print(line.rstrip('\n'))
+      afwezig.append(line.rstrip('\n'))
       pass
   
-  print(integer, "/", len(aanwezig))
+  print(integer, "/", len(aanwezig), len(afwezig), "afwezigen")
   # Check if everyone has been matched
   if integer is not len(aanwezig):
     print(f"Aantal Kamerleden matcht niet met het aanwezige aantal is {integer} maar moet zijn {len(aanwezig)}")
-
-  return aanwezig
+  print(afwezig)
+  return aanwezig, afwezig
     
+
+def arrayParsing(aanwezig, afwezig):
+  afwezig = np.array(afwezig, dtype=object)
+  count = np.arange(1, 2*len(afwezig), 0.5, dtype=int)
+  afwezig = afwezig.reshape(-1)
+  df = pd.DataFrame(data=afwezig, columns=["afwezig"])
+  df['counts'] = pd.DataFrame(data=count)
+  print(df.groupby('afwezig').count().sort_values(by=["counts"], ascending=False))
+
 # Make nice graph who is present and who is not
-def makeGraph(aanwezig):
-  pass
+def makeGraph(aanwezig, afwezig):
+  data = arrayParsing(aanwezig, afwezig)
 
 def aanwezigheid(datum):
   # Check of er wel een echte datum doorgegeven is
@@ -175,7 +191,7 @@ def aanwezigheid(datum):
   vergID = vergaderID(content)
   # Als de ID nul is, is er geen vergaderverslag
   if len(vergID) == 0:
-    return
+    return None, None
 
   if debug:
     print(vergID[0])
@@ -185,13 +201,26 @@ def aanwezigheid(datum):
   kamerleden = parseXML(verslagen)
   # Check of er wel echt iets uitgekomen is
   if kamerleden == -1:
-    return
+    return None, None
   # Geef de aanwezigen terug aan de bovenliggende functie 
-  return presentie(kamerleden)
+  aanwezig, afwezig = presentie(kamerleden)
+  f = open(f"files/logs/log{datum}.txt", "a")
+  f.write("Aanwezig:\n")
+  for str in aanwezig:
+    f.write(str + '\n')
+  f.write("\nAfwezig:\n")
+  for str in afwezig:
+    f.write(str + '\n')
+  f.close()
+
+  return aanwezig, afwezig
   
 
 def main():
   str = input("1: Zelf datum opgeven \n2: Bereik van data: ")
+  aanwezig = ""
+  aanwezig_arr = []
+  afwezig_arr = []
   if int(str) == 1:
     str = input("Geef een datum op (YYY-MM-DD): ")
     # Check de invoer voor yyyy-mm-dd
@@ -199,12 +228,10 @@ def main():
     assert str.split('-')[1].__len__() == 2
     assert str.split('-')[2].__len__() == 2
     datum = date.fromisoformat(str)
-    aanwezig = aanwezigheid(datum)
+    aanwezig, afwezig = aanwezigheid(datum)
   elif int(str) == 2:
-    # str1 = input("Geef een eerste datum op (YYY-MM-DD): ")
-    # str2 = input("Geef een tweede datum op (YYY-MM-DD): ")
-    str1 = "2024-04-15"
-    str2 = "2024-04-18"
+    str1 = input("Geef een eerste datum op (YYY-MM-DD): ")
+    str2 = input("Geef een tweede datum op (YYY-MM-DD): ")
 
     assert str1.split('-')[0].__len__() == 4
     assert str1.split('-')[1].__len__() == 2
@@ -222,13 +249,29 @@ def main():
       datum1 += timedelta(days=1)
       if datum1.isoweekday == 6 or datum1.isoweekday == 7:
         continue
-      print(datum1)
+
       if(datum1 == date.today()):
         print("Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht")
         continue
-      aanwezig = aanwezigheid(datum1)
+
+      aanwezig, afwezig = aanwezigheid(datum1)
+      if type(aanwezig) == type(None) or type(afwezig) == type(None):
+        continue
+
+      aanwezig_arr += aanwezig
+      afwezig_arr += afwezig
   else:
     print("Verkeerde invoer")
+  bezig = True
+  while bezig:
+    str = input("Grafiekje maken? j/n: \n")
+    if str == "j" or str == "J":
+      makeGraph(aanwezig_arr, afwezig_arr)
+      bezig = False
+    elif str == "n" or str == "N":
+      bezig = False
+    else:
+      print("Invoer is j/n")
   
 
 
