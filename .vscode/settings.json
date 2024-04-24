@@ -1,0 +1,31 @@
+{
+    "[python]": {
+        "editor.formatOnType": true,
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "autopep8.args": [
+        "--indent-size=2"
+    ],
+    "black-formatter.args": [
+        // "--indent-size=2"
+        /* OUTPUT: Black Formatter:
+        2024-04-24 17:41:59.924 [info] [Trace - 5:41:59 PM] Received response 'textDocument/formatting - (1)' in 116ms.
+        2024-04-24 17:42:04.428 [info] [Trace - 5:42:04 PM] Sending request 'textDocument/formatting - (2)'.
+        2024-04-24 17:42:04.439 [info] [Trace - 5:42:04 PM] Received notification 'window/logMessage'.
+        2024-04-24 17:42:04.439 [info] /home/jeppe/Documents/Github/not-mine/WieIsErWel/WieIsErWel_DaanJGriffioen/.env_linux/bin/python -m black --indent-size=2 --stdin-filename /home/jeppe/Documents/Github/not-mine/WieIsErWel/WieIsErWel_DaanJGriffioen/Kamerleden-Aanwezig.py -
+        2024-04-24 17:42:04.439 [info] [Trace - 5:42:04 PM] Received notification 'window/logMessage'.
+        2024-04-24 17:42:04.439 [info] CWD formatter: /home/jeppe/Documents/Github/not-mine/WieIsErWel/WieIsErWel_DaanJGriffioen
+        2024-04-24 17:42:04.445 [info] [Trace - 5:42:04 PM] Received notification 'window/logMessage'.
+        2024-04-24 17:42:04.445 [info] Usage: black [OPTIONS] SRC ...
+        Try 'black -h' for help.
+
+        Error: No such option: --indent-size
+        */
+    ],
+    // "python.formatting.provider": "autopep8",
+    // "python.formatting.autopep8Args": [
+    //     "--indent-size=2"
+    // ],
+    // "editor.tabSize": 2,
+    // "editor.insertSpaces": true
+}
