@@ -11,8 +11,6 @@ import xml.etree.ElementTree as ET
 import json
 from datetime import date, datetime, timedelta
 
-import argparse
-
 debug = False
 
 # Get most recent 'vergaderverslag' from tweedekamer API
