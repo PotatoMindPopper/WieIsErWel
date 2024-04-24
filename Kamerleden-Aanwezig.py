@@ -19,7 +19,7 @@ class PresentieError(Exception):
     super().__init__(*args)
 
 # Get most recent 'vergaderverslag' from tweedekamer API
-def getURLContent(datum):
+def get_url_content(datum):
   # Write to log file
   f = open(f"files/logs/log{str(datum)}.txt", "w")
   f.close() 
@@ -33,7 +33,7 @@ def getURLContent(datum):
   return r.content
 
 # Get vergaderID from json
-def vergaderID(content):
+def get_vergader_ids(content):
   val = json.loads(content)
   vergaderingen = []
   for line in val["value"]:
@@ -44,26 +44,26 @@ def vergaderID(content):
   return vergaderingen
   
 # Get 'Vergaderverslagen'
-def getVerslag(vergID):
+def get_verslagen(vergader_ids):
   r = []
-  for i in range(len(vergID)):
-    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergID[i]}/resource"
+  for i in range(len(vergader_ids)):
+    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergader_ids[i]}/resource"
     if debug:
       print(url)
     r.append(req.get(url))
   return r
 
-def laatste(verslagen):
+def latest_verslag(verslagen):
   tijden = []
-  max = 0
+  max_time = 0
   max_element = -1
   for i in range(len(verslagen)):
     verslag = verslagen[i].content.decode()
 
     try:
       root = ET.fromstring(verslag)
-    except:
-      raise Exception("Error parsing XML")
+    except Exception as e:
+      raise PresentieError("Error parsing XML")
 
     if root[0][1].text != "Plenaire zaal" or root.attrib['soort'] == "Voorpublicatie":
       tijden.append(0)
@@ -72,57 +72,58 @@ def laatste(verslagen):
     tijden.append(root.attrib["Timestamp"].split('T')[1].split(':')[0])
 
   for j in range(len(tijden)):
-    if int(tijden[j]) > max:
-      max = int(tijden[j])
+    if int(tijden[j]) > max_time:
+      max_time = int(tijden[j])
       max_element = j
 
   if debug:
-    print(max_element, max)
+    print(max_element, max_time)
   return max_element
 
 
 # Parse the XML received from the API
-def parseXML(verslagen):
-  next = False
-  kamerleden = ""
-
-  laatste_vers = laatste(verslagen)
+def parse_xml(verslagen):
+  laatste_vers = latest_verslag(verslagen)
   
-  if  laatste_vers == -1:
+  if laatste_vers == -1:
     return -1
   
   verslag = verslagen[laatste_vers].content.decode()
   
   try:
     root = ET.fromstring(verslag)
-  except:
-    raise Exception("Error parsing XML")
+  except Exception as e:
+    raise PresentieError("Error parsing XML")
 
   # Parse XML and extract specific element
   ns = {'ns': 'http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0'}
   alinea_elements  = root.findall(".//ns:alineaitem", namespaces=ns)
+
   if debug:
     print(type(alinea_elements))
-    
+
+  next_alinea = False
+  kamerleden = None    
   for alinea in alinea_elements:
-    if next:
+    if next_alinea:
       kamerleden = alinea.text
       if debug:
         print("Kamerleden: ", kamerleden)
       break
     if "leden der Kamer, te weten:" in str(alinea.text):
-      next = True
+      # TODO: Check if kamerleden are present in this text, instead of next one
+      next_alinea = True
       
-    if not next or type(kamerleden) == None:
-      continue
   if type(kamerleden) == type(None):
     return -1
+
   # Format and transform into array
-  kamerleden = kamerleden.lower().replace(" en ",",").replace(" ","").split(",")
+  kamerleden = kamerleden.lower().rstrip(",").replace(" en ", ",").replace(" ", "").split(",")
+
   if debug:
     print(type(kamerleden), kamerleden)
-  # Last index is invalid ez fix
-  return kamerleden[:len(kamerleden)-1]
+  
+  return kamerleden
 
 # Match names from present list (source) to total list (target)
 def stringSimilarity(target, source, matched):
@@ -165,14 +166,17 @@ def presentie(aanwezig):
       afwezig.append(line.rstrip('\n'))
       pass
   
-  print(integer, "/", len(aanwezig), len(afwezig), "afwezigen")
+  print(f"{integer} / {len(aanwezig)} kamerleden aanwezig, {len(afwezig)} afwezigen")
+
   # Check if everyone has been matched
-  if integer is not len(aanwezig):
+  if integer != len(aanwezig):
     print(f"Aantal Kamerleden matcht niet met het aanwezige aantal is {integer} maar moet zijn {len(aanwezig)}")
+
   print(afwezig)
+
   return aanwezig, afwezig
     
-
+# Parse array to DataFrame
 def arrayParsing(aanwezig, afwezig):
   afwezig = np.array(afwezig, dtype=object)
   count = np.arange(1, 2*len(afwezig), 0.5, dtype=int)
@@ -182,97 +186,102 @@ def arrayParsing(aanwezig, afwezig):
   print(df.groupby('afwezig').count().sort_values(by=["counts"], ascending=False))
 
 # Make nice graph who is present and who is not
-def makeGraph(aanwezig, afwezig):
+def make_graph(aanwezig, afwezig):
   data = arrayParsing(aanwezig, afwezig)
 
 def aanwezigheid(datum):
   # Check of er wel een echte datum doorgegeven is
-  assert type(datum) == date
+  assert isinstance(datum, date)
+
   # Haal het verslag op
-  content = getURLContent(datum)
+  content = get_url_content(datum)
+
   # Haal de vergaderID uit het verslag
-  vergID = vergaderID(content)
+  vergader_ids = get_vergader_ids(content)
+
   # Als de ID nul is, is er geen vergaderverslag
-  if len(vergID) == 0:
+  if len(vergader_ids) == 0:
     return None, None
 
   if debug:
-    print(vergID[0])
+    print(vergader_ids[0])
+
   # Haal het verslag op a.h.v. de vergaderID
-  verslagen = getVerslag(vergID)
+  verslagen = get_verslagen(vergader_ids)
+
   # Haal de lijst met kamerleden uit de verslagen
-  kamerleden = parseXML(verslagen)
+  kamerleden = parse_xml(verslagen)
+
   # Check of er wel echt iets uitgekomen is
   if kamerleden == -1:
     return None, None
+
   # Geef de aanwezigen terug aan de bovenliggende functie 
   aanwezig, afwezig = presentie(kamerleden)
-  f = open(f"files/logs/log{datum}.txt", "a")
-  f.write("Aanwezig:\n")
-  for str in aanwezig:
-    f.write(str + '\n')
-  f.write("\nAfwezig:\n")
-  for str in afwezig:
-    f.write(str + '\n')
-  f.close()
+  with open(f"files/logs/log{datum}.txt", "a") as f:
+    f.write("Aanwezig:\n")
+    for string in aanwezig:
+      f.write(string + "\n")
+    f.write("\nAfwezig:\n")
+    for string in afwezig:
+      f.write(string + "\n")
 
   return aanwezig, afwezig
+
+
+def convert_to_date(string):
+  # Check the format for the string (YYYY-MM-DD)
+  check_string = string.split("-")
+  assert len(check_string[0]) == 4
+  assert len(check_string[1]) == 2
+  assert len(check_string[2]) == 2
   
+  return date.fromisoformat(string)
 
-def main():
-  str = input("1: Zelf datum opgeven \n2: Bereik van data: ")
-  aanwezig = ""
-  aanwezig_arr = []
-  afwezig_arr = []
-  if int(str) == 1:
-    str = input("Geef een datum op (YYY-MM-DD): ")
-    # Check de invoer voor yyyy-mm-dd
-    assert str.split('-')[0].__len__() == 4
-    assert str.split('-')[1].__len__() == 2
-    assert str.split('-')[2].__len__() == 2
-    datum = date.fromisoformat(str)
-    aanwezig, afwezig = aanwezigheid(datum)
-  elif int(str) == 2:
-    str1 = input("Geef een eerste datum op (YYY-MM-DD): ")
-    str2 = input("Geef een tweede datum op (YYY-MM-DD): ")
 
-    assert str1.split('-')[0].__len__() == 4
-    assert str1.split('-')[1].__len__() == 2
-    assert str1.split('-')[2].__len__() == 2
-    datum1 = date.fromisoformat(str1)
+def range_of_dates():
+  datum1 = convert_to_date(input("Geef een eerste datum op (YYYY-MM-DD): "))
+  datum2 = convert_to_date(input("Geef een tweede datum op (YYYY-MM-DD): "))
+  delta = datum2 - datum1
 
-    assert str2.split('-')[0].__len__() == 4
-    assert str2.split('-')[1].__len__() == 2
-    assert str2.split('-')[2].__len__() == 2
-    datum2 = date.fromisoformat(str2)
+  aanwezig_arr = afwezig_arr = []
+  for _ in range(delta.days): # TODO: Maybe convert this to using multiprocessing
+    datum1 += timedelta(days=1)
+    if datum1.isoweekday == 6 or datum1.isoweekday == 7:
+      continue
 
-    delta = datum2 - datum1
-    
-    for _ in range(delta.days):
-      datum1 += timedelta(days=1)
-      if datum1.isoweekday == 6 or datum1.isoweekday == 7:
-        continue
+    if datum1 == date.today():
+      print("Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht")
+      continue
 
-      if(datum1 == date.today()):
-        print("Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht")
-        continue
-
-      aanwezig, afwezig = aanwezigheid(datum1)
-      if type(aanwezig) == type(None) or type(afwezig) == type(None):
-        continue
-
+    aanwezig, afwezig = aanwezigheid(datum1)
+    if aanwezig and afwezig:
       aanwezig_arr += aanwezig
       afwezig_arr += afwezig
+  
+  return aanwezig_arr, afwezig_arr
+
+
+def main():
+  aanwezig_arr = []
+  afwezig_arr = []
+
+  answer = input("1: Zelf datum opgeven\n2: Bereik van data\nUw keuze: ")
+  if int(answer) == 1:
+    datum = convert_to_date(input("Geef een datum op (YYYY-MM-DD): "))
+    aanwezig, afwezig = aanwezigheid(datum)
+  elif int(answer) == 2:
+    aanwezig_arr, afwezig_arr = range_of_dates()
   else:
     print("Verkeerde invoer")
-  bezig = True
-  while bezig:
-    str = input("Grafiekje maken? j/n: \n")
-    if str == "j" or str == "J":
-      makeGraph(aanwezig_arr, afwezig_arr)
-      bezig = False
-    elif str == "n" or str == "N":
-      bezig = False
+
+  while True:
+    answer = input("Grafiekje maken? j/n: \n").lower()
+    if answer == "j":
+      make_graph(aanwezig_arr, afwezig_arr)
+      break
+    elif answer == "n":
+      break
     else:
       print("Invoer is j/n")
   
