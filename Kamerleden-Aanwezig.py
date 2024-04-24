@@ -25,11 +25,8 @@ def get_url_content(datum):
   directory = "files/logs/"
   if not os.path.exists(directory):
     os.makedirs(directory)
-  
-  filename = f"log{str(datum)}.txt"
-  filepath = os.path.join(directory, filename)
-  
-  with open(filepath, "w"):
+
+  with open(f"{directory}log{str(datum)}.txt", "w"):
     # Write content to the file if needed
     pass  # Placeholder, you can write content here if required
 
@@ -63,13 +60,13 @@ def get_vergader_ids(content):
   
 # Get 'Vergaderverslagen'
 def get_verslagen(vergader_ids):
-  r = []
+  response = []
   for i in range(len(vergader_ids)):
     url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergader_ids[i]}/resource"
     if debug:
       print(url)
-    r.append(req.get(url))
-  return r
+    response.append(req.get(url))
+  return response
 
 def latest_verslag(verslagen):
   tijden = []
@@ -81,12 +78,16 @@ def latest_verslag(verslagen):
     try:
       root = ET.fromstring(verslag)
     except Exception as e:
-      raise PresentieError("Error parsing XML")
+      raise PresentieError(f"Error parsing XML: {e}")
 
     if root[0][1].text != "Plenaire zaal" or root.attrib['soort'] == "Voorpublicatie":
       tijden.append(0)
       continue
     
+    timestamp = root.get("Timestamp", "0000-00-00T00:00:00.0000000+00:00")
+    datetime_object = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")
+    if debug:
+      print(datetime_object)
     tijden.append(root.attrib["Timestamp"].split('T')[1].split(':')[0])
 
   for j in range(len(tijden)):
@@ -111,7 +112,7 @@ def parse_xml(verslagen):
   try:
     root = ET.fromstring(verslag)
   except Exception as e:
-    raise PresentieError("Error parsing XML")
+    raise PresentieError(f"Error parsing XML: {e}")
 
   # Parse XML and extract specific element
   ns = {'ns': 'http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0'}
