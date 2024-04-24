@@ -1,22 +1,17 @@
 import argparse
-import pandas as pd
-import numpy as np
-import array
-from cgi import print_form
-import sys
-from types import NoneType
-from numpy import dtype
-import requests as req
-import xml.etree.ElementTree as ET
-import json
 from datetime import date, datetime, timedelta
 import os
+import requests
+import xml.etree.ElementTree as ET
+import numpy
+import pandas
 
 debug = False
+API_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
 
 # Create a default exception
 class PresentieError(Exception):
-  def __init__(self, *args: object) -> NoneType:
+  def __init__(self, *args):
     super().__init__(*args)
 
 # Get most recent 'vergaderverslag' from tweedekamer API
@@ -30,7 +25,7 @@ def get_url_content(datum):
     # Write content to the file if needed
     pass  # Placeholder, you can write content here if required
 
-  url = ("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
+  url = (API_URL
     + "/Verslag"
     + "?$filter="
     + f"year(GewijzigdOp)%20eq%20{datum.year}"
@@ -43,15 +38,14 @@ def get_url_content(datum):
   if debug:
     print(url)
 
-  response = req.get(url)
+  response = requests.get(url)
 
-  return response.content
+  return response.json()
 
 # Get vergaderID from json
 def get_vergader_ids(content):
-  val = json.loads(content)
   vergaderingen = []
-  for line in val["value"]:
+  for line in content["value"]:
     if line["Verwijderd"] == False:
       if debug:
         print(line)
@@ -62,10 +56,10 @@ def get_vergader_ids(content):
 def get_verslagen(vergader_ids):
   response = []
   for i in range(len(vergader_ids)):
-    url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag/{vergader_ids[i]}/resource"
+    url = f"{API_URL}/Verslag/{vergader_ids[i]}/resource"
     if debug:
       print(url)
-    response.append(req.get(url))
+    response.append(requests.get(url))
   return response
 
 def latest_verslag(verslagen):
@@ -197,11 +191,11 @@ def presentie(aanwezig):
     
 # Parse array to DataFrame
 def arrayParsing(aanwezig, afwezig):
-  afwezig = np.array(afwezig, dtype=object)
-  count = np.arange(1, 2*len(afwezig), 0.5, dtype=int)
+  afwezig = numpy.array(afwezig, dtype=object)
+  count = numpy.arange(1, 2*len(afwezig), 0.5, dtype=int)
   afwezig = afwezig.reshape(-1)
-  df = pd.DataFrame(data=afwezig, columns=["afwezig"])
-  df['counts'] = pd.DataFrame(data=count)
+  df = pandas.DataFrame(data=afwezig, columns=["afwezig"])
+  df['counts'] = pandas.DataFrame(data=count)
   print(df.groupby('afwezig').count().sort_values(by=["counts"], ascending=False))
 
 # Make nice graph who is present and who is not
