@@ -1,2 +1,4 @@
 .env_linux/*
 files/logs/*
+temp*
+*.xml
