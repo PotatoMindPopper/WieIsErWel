@@ -63,45 +63,52 @@ def get_verslagen(vergader_ids):
   return response
 
 def latest_verslag(verslagen):
-  tijden = []
-  max_time = 0
-  max_element = -1
-  for i in range(len(verslagen)):
-    verslag = verslagen[i].content.decode()
+  # Set a default time, for when a verslag is not valid
+  default_time = "0001-01-01T00:00:00.0000000+00:00"
 
+  # Find the timestamps of all verslagen
+  tijden = []
+  for verslag in verslagen:
     try:
-      root = ET.fromstring(verslag)
+      root = ET.fromstring(verslag.content.decode())
     except Exception as e:
       raise PresentieError(f"Error parsing XML: {e}")
 
     if root[0][1].text != "Plenaire zaal" or root.attrib['soort'] == "Voorpublicatie":
-      tijden.append(0)
+      tijden.append(datetime.fromisoformat(default_time))
       continue
     
-    timestamp = root.get("Timestamp", "0000-00-00T00:00:00.0000000+00:00")
-    datetime_object = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")
+    timestamp = root.get("Timestamp", default_time)
+    timestamp = datetime.fromisoformat(timestamp)
     if debug:
-      print(datetime_object)
-    tijden.append(root.attrib["Timestamp"].split('T')[1].split(':')[0])
+      print(timestamp)
+    tijden.append(timestamp)
 
-  for j in range(len(tijden)):
-    if int(tijden[j]) > max_time:
-      max_time = int(tijden[j])
-      max_element = j
+  # Check which verslag has the latest timestamp
+  max_time = datetime.fromisoformat(default_time)
+  max_element = -1
+  for i, tijd in enumerate(tijden):
+    if tijd > max_time:
+      max_time = tijd
+      max_element = i
+  
+  if max_element == -1:
+    return -1
+  
+  verslag = verslagen[max_element]
 
   if debug:
-    print(max_element, max_time)
-  return max_element
+    print(verslag, max_time)
+
+  return verslag.content.decode()
 
 
 # Parse the XML received from the API
 def parse_xml(verslagen):
-  laatste_vers = latest_verslag(verslagen)
+  verslag = latest_verslag(verslagen)
   
-  if laatste_vers == -1:
+  if not verslag or verslag == -1:
     return -1
-  
-  verslag = verslagen[laatste_vers].content.decode()
   
   try:
     root = ET.fromstring(verslag)
@@ -279,14 +286,17 @@ def main():
   aanwezig_arr = []
   afwezig_arr = []
 
-  answer = input("1: Zelf datum opgeven\n2: Bereik van data\nUw keuze: ")
-  if int(answer) == 1:
-    datum = convert_to_date(input("Geef een datum op (YYYY-MM-DD): "))
-    aanwezig, afwezig = aanwezigheid(datum)
-  elif int(answer) == 2:
-    aanwezig_arr, afwezig_arr = range_of_dates()
-  else:
-    print("Verkeerde invoer")
+  while True:
+    answer = input("1: Zelf datum opgeven\n2: Bereik van data\nUw keuze: ")
+    if answer == "1":
+      datum = convert_to_date(input("Geef een datum op (YYYY-MM-DD): "))
+      aanwezig_arr, afwezig_arr = aanwezigheid(datum)
+      break
+    elif answer == "2":
+      aanwezig_arr, afwezig_arr = range_of_dates()
+      break
+    else:
+      print("Verkeerde invoer (alleen \"1\" of \"2\")")
 
   while True:
     answer = input("Grafiekje maken? j/n: \n").lower()
