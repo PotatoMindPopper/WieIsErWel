@@ -13,6 +13,11 @@ from datetime import date, datetime, timedelta
 
 debug = False
 
+# Create a default exception
+class PresentieError(Exception):
+  def __init__(self, *args: object) -> NoneType:
+    super().__init__(*args)
+
 # Get most recent 'vergaderverslag' from tweedekamer API
 def getURLContent(datum):
   # Write to log file
