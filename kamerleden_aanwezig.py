@@ -580,7 +580,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--debug",
         action="store_true",
-        help="Set debug to True if you want to see the output of the getting and parsing process",
+        help="Set debug to True if you want to see the output of "
+        + "the getting and parsing process",
     )
     args = parser.parse_args()
 
