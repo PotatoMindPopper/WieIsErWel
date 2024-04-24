@@ -1,4 +1,5 @@
 import argparse
+import logging
 from datetime import date, datetime, timedelta
 import os
 import requests
@@ -6,7 +7,6 @@ import xml.etree.ElementTree as ET
 import numpy
 import pandas
 
-debug = False
 API_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
 
 
@@ -43,8 +43,7 @@ def get_url_content(datum):
         + f"day(GewijzigdOp)%20eq%20{datum.day}"
     )
 
-    if debug:
-        print(url)
+    logging.debug(f"[get_url_content()] url: {url}")
 
     response = requests.get(url)
 
@@ -58,8 +57,7 @@ def get_vergader_ids(content):
     vergaderingen = []
     for line in content["value"]:
         if line["Verwijderd"] == False:
-            if debug:
-                print(line)
+            logging.debug(f"[get_vergader_ids()] line: {line}")
             vergaderingen.append(line["Id"])
     return vergaderingen
 
@@ -71,8 +69,7 @@ def get_verslagen(vergader_ids):
     response = []
     for i in range(len(vergader_ids)):
         url = f"{API_URL}/Verslag/{vergader_ids[i]}/resource"
-        if debug:
-            print(url)
+        logging.debug(f"[get_verslagen()] url: {url}")
         response.append(requests.get(url))
     return response
 
@@ -98,8 +95,7 @@ def latest_verslag(verslagen):
 
         timestamp = root.get("Timestamp", default_time)
         timestamp = datetime.fromisoformat(timestamp)
-        if debug:
-            print(timestamp)
+        logging.debug(f"[latest_verslag()] timestamp: {timestamp}")
         tijden.append(timestamp)
 
     # Check which verslag has the latest timestamp
@@ -115,8 +111,9 @@ def latest_verslag(verslagen):
 
     verslag = verslagen[max_element]
 
-    if debug:
-        print(verslag, max_time)
+    logging.debug(
+        f"[latest_verslag()] max_element: {max_element}; max_time: {max_time}"
+    )
 
     return verslag.content.decode()
 
@@ -139,16 +136,14 @@ def parse_xml(verslagen):
     ns = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
     alinea_elements = root.findall(".//ns:alineaitem", namespaces=ns)
 
-    if debug:
-        print(type(alinea_elements))
+    logging.debug(f"[parse_xml()] type(alinea_elements): {type(alinea_elements)}")
 
     next_alinea = False
     kamerleden = None
     for alinea in alinea_elements:
         if next_alinea:
             kamerleden = alinea.text
-            if debug:
-                print("Kamerleden: ", kamerleden)
+            logging.debug(f"[parse_xml()] Kamerleden: {kamerleden}")
             break
         if "leden der Kamer, te weten:" in str(alinea.text):
             # TODO: Check if kamerleden are present in this text, instead of next one
@@ -162,13 +157,15 @@ def parse_xml(verslagen):
         kamerleden.lower().rstrip(",").replace(" en ", ",").replace(" ", "").split(",")
     )
 
-    if debug:
-        print(type(kamerleden), kamerleden)
+    logging.debug(
+        f"[parse_xml()] type(kamerleden): {type(kamerleden)}; "
+        + f"kamerleden: {kamerleden}"
+    )
 
     return kamerleden
 
 
-def stringSimilarity(target, source, matched):
+def string_similarity(target, source, matched):
     """
     Match names from present list (source) to total list (target)
     """
@@ -188,8 +185,9 @@ def stringSimilarity(target, source, matched):
                 # If enough letters are matched accept it
                 if consistent >= len(source[i]) - 1:
                     matched.append(source[i])
-                    if debug:
-                        print(f"matched {target} to {source[i]}")
+                    logging.debug(
+                        f"[string_similarity()] matched {target} to {source[i]}"
+                    )
                     return True
                 else:
                     break
@@ -207,18 +205,17 @@ def presentie(aanwezig):
     matched = []
     afwezig = []
     integer = 0
-    # Open file with all members
-    f = open("files/2dekmrledn.txt", "r")
-    print("----Afwezig:----")
 
-    # Check who are present at vergaderingen and mark in 'matched' array
-    for line in f:
-        if stringSimilarity(line.rstrip("\n"), aanwezig, matched):
-            integer += 1
-        else:
-            print(line.rstrip("\n"))
-            afwezig.append(line.rstrip("\n"))
-            pass
+    print("----Afwezig:----")
+    # Open file with all members
+    with open("files/2dekmrledn.txt", "r") as f:
+        # Check who are present at vergaderingen and mark in 'matched' array
+        for line in f:
+            if string_similarity(line.rstrip("\n"), aanwezig, matched):
+                integer += 1
+            else:
+                print(line.rstrip("\n"))
+                afwezig.append(line.rstrip("\n"))
 
     print(
         f"{integer} / {len(aanwezig)} kamerleden "
@@ -232,12 +229,12 @@ def presentie(aanwezig):
             + f"is {integer} maar moet zijn {len(aanwezig)}"
         )
 
-    print(afwezig)
+    logging.debug(f"[presentie()] afwezig: {afwezig}")
 
     return aanwezig, afwezig
 
 
-def arrayParsing(aanwezig, afwezig):
+def array_parsing(aanwezig, afwezig):
     """
     Parse array to DataFrame
     """
@@ -253,7 +250,7 @@ def make_graph(aanwezig, afwezig):
     """
     Make nice graph who is present and who is not
     """
-    data = arrayParsing(aanwezig, afwezig)
+    data = array_parsing(aanwezig, afwezig)
 
 
 def aanwezigheid(datum):
@@ -271,8 +268,7 @@ def aanwezigheid(datum):
     if len(vergader_ids) == 0:
         return None, None
 
-    if debug:
-        print(vergader_ids[0])
+    logging.debug(f"{vergader_ids[0]}")
 
     # Haal het verslag op a.h.v. de vergaderID
     verslagen = get_verslagen(vergader_ids)
@@ -403,12 +399,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Set debug mode for printing")
     parser.add_argument(
         "--debug",
-        default=False,
-        type=bool,
-        metavar=debug,
+        action="store_true",
         help="Set debug to True if you want to see the output of\
                             the getting and parsing process",
     )
     args = parser.parse_args()
-    debug = args.debug
+    logging_level = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(
+        level=logging_level, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     main()
