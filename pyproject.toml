@@ -1,27 +1,31 @@
 [tool.black]
-# Line length to format the code. Set to 88 by default.
+# Maximum line length for code formatting.
+# Set to 88 by default.
 line-length = 88
 
-# Maximum number of line breaks allowed before a section of consecutive lines will be broken up.
-# Set to 12 by default.
+# Maximum length of consecutive lines before they are broken up.
+# Set to 88 by default.
 max-line-length = 88
 
 # Minimum number of consecutive lines to break into chunks.
-# Set to 3 by default.
+# Set to 1 by default.
 min-string-paragraphs = 1
 
-# String literal style to use. Possible values are 'single', 'double', or 'auto'.
-# Set to 'double' by default.
+# Whether to normalize string literals to use single or double quotes.
+# Possible values: 'true', 'false'.
+# Set to 'true' by default.
 string-normalization = "true"
 
-# Whether or not to skip string normalization (i.e., leave string literals as-is).
-# Set to false by default.
+# Whether to skip normalizing string literals.
+# Possible values: 'true', 'false'.
+# Set to 'false' by default.
 skip-string-normalization = false
 
-# Whether or not to force the use of parentheses in a lambda function even if it's syntactically possible to omit them.
-# Set to false by default.
+# Whether to put closing brackets/braces/parentheses on a new line.
+# Possible values: 'true', 'false'.
+# Set to 'false' by default.
 experimental-string-processing = false
 
-# Whether or not to put closing bracket/brace/parenthesis on a new line.
-# Set to false by default.
-experimental-string-processing = false
+# Indentation width to use.
+# Set to 2 spaces by default.
+indent = 2
