@@ -159,7 +159,7 @@ def stringSimilarity(target, source, matched):
         if consistent >= len(source[i]) - 1:
           matched.append(source[i])
           if debug:
-            print(f"mathced {target} to {source[i]}")
+            print(f"matched {target} to {source[i]}")
           return True
         else:break
       # Compare letters
@@ -211,7 +211,8 @@ def make_graph(aanwezig, afwezig):
 
 def aanwezigheid(datum):
   # Check of er wel een echte datum doorgegeven is
-  assert isinstance(datum, date)
+  if not isinstance(datum, date):
+    raise PresentieError(f"{datum}({type(datum)}) is geen {type(date)}")
 
   # Haal het verslag op
   content = get_url_content(datum)
@@ -249,14 +250,59 @@ def aanwezigheid(datum):
   return aanwezig, afwezig
 
 
-def convert_to_date(string):
-  # Check the format for the string (YYYY-MM-DD)
-  check_string = string.split("-")
-  assert len(check_string[0]) == 4
-  assert len(check_string[1]) == 2
-  assert len(check_string[2]) == 2
+def convert_to_date(date_string):
+  return datetime.strptime(date_string, "%Y-%m-%d").date()
+
+
+def process_date(datum):
+  if datum.isoweekday() == 6 or datum.isoweekday() == 7:
+    return [], []  # Return empty lists for weekends
   
-  return date.fromisoformat(string)
+  if datum == date.today():
+    print("Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht")
+    return [], []  # Return empty lists for today
+
+  result = aanwezigheid(datum)
+  if result is None:
+    return [], []  # Handle the case when aanwezigheid returns None
+
+  aanwezig, afwezig = result
+  
+  if aanwezig and afwezig:
+    return aanwezig, afwezig
+  else:
+    return [], []  # Handle the case when aanwezigheid returns tuple[None, None]
+
+def process_range_of_dates(delta, datum):
+  aanwezig_arr = afwezig_arr = []
+
+  for _ in range(delta.days):
+    datum += timedelta(days=1)
+    aanwezig, afwezig = process_date(datum)
+    if aanwezig and afwezig:
+      aanwezig_arr.extend(aanwezig)
+      afwezig_arr.extend(afwezig)
+      
+  return aanwezig_arr, afwezig_arr
+  
+def multiprocess_range_of_dates(delta, datum):
+  from multiprocessing import Pool
+  
+  dates_to_process = [datum + timedelta(days=i) for i in range(delta.days)]
+  
+  # Use multiprocessing pool to process dates in parallel with custom number
+  # of processes
+  with Pool(max(1, os.cpu_count() - 2)) as pool:
+    results = pool.map(process_date, dates_to_process)
+      
+  # Unpack the results
+  aanwezig_arr = afwezig_arr = []
+  for aanwezig, afwezig in results:
+    if aanwezig and afwezig:
+      aanwezig_arr.extend(aanwezig)
+      afwezig_arr.extend(afwezig)
+
+  return aanwezig_arr, afwezig_arr
 
 
 def range_of_dates():
@@ -265,20 +311,10 @@ def range_of_dates():
   delta = datum2 - datum1
 
   aanwezig_arr = afwezig_arr = []
-  for _ in range(delta.days): # TODO: Maybe convert this to using multiprocessing
-    datum1 += timedelta(days=1)
-    if datum1.isoweekday == 6 or datum1.isoweekday == 7:
-      continue
-
-    if datum1 == date.today():
-      print("Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht")
-      continue
-
-    aanwezig, afwezig = aanwezigheid(datum1)
-    if aanwezig and afwezig:
-      aanwezig_arr += aanwezig
-      afwezig_arr += afwezig
-  
+  if delta.days <= 10:
+    aanwezig_arr, afwezig_arr = process_range_of_dates(delta, datum1)
+  else:
+    aanwezig_arr, afwezig_arr = multiprocess_range_of_dates(delta, datum1)
   return aanwezig_arr, afwezig_arr
 
 
