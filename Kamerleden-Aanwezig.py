@@ -178,7 +178,8 @@ def stringSimilarity(target, source, matched):
             continue
         consistent = 0
         for j in range(len(target)):
-            # If the length of one of the strings has been reached or if enough letters are matched
+            # If the length of one of the strings has been reached or if enough
+            # letters are matched
             if (
                 j >= len(source[i])
                 or j >= len(target)
@@ -219,12 +220,16 @@ def presentie(aanwezig):
             afwezig.append(line.rstrip("\n"))
             pass
 
-    print(f"{integer} / {len(aanwezig)} kamerleden aanwezig, {len(afwezig)} afwezigen")
+    print(
+        f"{integer} / {len(aanwezig)} kamerleden "
+        + f"aanwezig, {len(afwezig)} afwezigen"
+    )
 
     # Check if everyone has been matched
     if integer != len(aanwezig):
         print(
-            f"Aantal Kamerleden matcht niet met het aanwezige aantal is {integer} maar moet zijn {len(aanwezig)}"
+            "Aantal Kamerleden matcht niet met het aanwezige aantal "
+            + f"is {integer} maar moet zijn {len(aanwezig)}"
         )
 
     print(afwezig)
@@ -302,20 +307,23 @@ def process_date(datum):
 
     if datum == date.today():
         print(
-            "Verslag van vandaag is er waarschijnlijk niet, dus deze wordt niet gezocht"
+            "Verslag van vandaag is er waarschijnlijk niet, "
+            + "dus deze wordt niet gezocht"
         )
         return [], []  # Return empty lists for today
 
     result = aanwezigheid(datum)
     if result is None:
-        return [], []  # Handle the case when aanwezigheid returns None
+        # Handle the case when aanwezigheid returns None
+        return [], []
 
     aanwezig, afwezig = result
 
     if aanwezig and afwezig:
         return aanwezig, afwezig
     else:
-        return [], []  # Handle the case when aanwezigheid returns tuple[None, None]
+        # Handle the case when aanwezigheid returns tuple[None, None]
+        return [], []
 
 
 def process_range_of_dates(delta, datum):
