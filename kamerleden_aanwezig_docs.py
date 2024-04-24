@@ -1,3 +1,53 @@
+"""
+Presence Checking Script
+
+This script interacts with the Tweede Kamer API to check the presence status of
+members of the Dutch parliament (Tweede Kamer). It allows users to specify a
+single date or a range of dates to check the presence status of members.
+Optionally, it can create a graphical representation of the presence status.
+
+Usage:
+    python presence_check.py [--debug]
+
+Command-line Arguments:
+    --debug: Optional argument to enable debug mode for printing additional\
+    information during the process.
+
+Dependencies:
+    - Python 3.x
+    - Required Python packages: argparse, requests, numpy, pandas
+
+Author:
+    [Your Name]
+    [Your Email Address]
+
+Date:
+    [Date of Script Creation/Last Update]
+
+"""
+
+# ===============
+# START OF SCRIPT
+# ===============
+
+"""
+Imports necessary modules and defines global variables for the presence
+checking script.
+
+Imports:
+    - argparse: For parsing command-line arguments.
+    - logging: For logging messages.
+    - date, datetime, timedelta: For working with dates and times.
+    - os: For interacting with the operating system.
+    - requests: For making HTTP requests.
+    - xml.etree.ElementTree: For parsing XML data.
+    - numpy: For numerical computing.
+    - pandas: For data manipulation and analysis.
+
+Global Variables:
+    - API_URL (str): Base URL for the Tweede Kamer API.
+"""
+
 import argparse
 import logging
 from datetime import date, datetime, timedelta
@@ -13,11 +63,18 @@ API_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
 class PresentieError(Exception):
     """
     Custom exception class for errors related to presence checking.
+
+    Attributes:
+        *args: Positional arguments to be passed to the base Exception class.
     """
 
     def __init__(self, *args):
         """
         Initialize the PresentieError exception.
+
+        Parameters:
+            *args: Positional arguments to be passed to the base Exception\
+            class.
         """
         super().__init__(*args)
 
@@ -26,6 +83,22 @@ def get_url_content(date):
     """
     Fetches the 'vergaderverslag'-en data from the Tweede Kamer API for a given
     date.
+
+    Parameters:
+        date (datetime.date): The date for which to fetch the content.
+
+    Returns:
+        dict: JSON response containing the content fetched from the API.
+
+    Note:
+        This function assumes the existence of an API_URL constant representing
+        the base URL of the Tweede Kamer API.
+
+    Example:
+        ```
+        # Fetch content for April 24, 2024
+        content = get_url_content(datetime.date(2024, 4, 24))
+        ```
     """
     # Create directory for log files if it doesn't exist
     log_directory = "files/logs/"
@@ -61,6 +134,18 @@ def get_url_content(date):
 def get_vergader_ids(content):
     """
     Extracts vergaderID from JSON content obtained from the Tweede Kamer API.
+
+    Parameters:
+        content (dict): JSON content obtained from the API.
+
+    Returns:
+        list: List of vergaderID values extracted from the JSON content.
+
+    Example:
+        ```
+        # Assume 'content' contains JSON data from the API
+        vergader_ids = get_vergader_ids(content)
+        ```
     """
     # Initialize an empty list to store the extracted vergaderID values
     vergader_ids = []
@@ -82,6 +167,24 @@ def get_verslagen(vergader_ids):
     """
     Fetches 'Vergaderverslagen' from the Tweede Kamer API for the given list of
     vergaderIDs.
+
+    Parameters:
+        vergader_ids (list): List of vergaderID values for which to fetch the\
+        'Vergaderverslagen'.
+
+    Returns:
+        list: List of HTTP response objects containing the fetched\
+        'Vergaderverslagen' data.
+
+    Note:
+        This function assumes the existence of an API_URL constant representing
+        the base URL of the Tweede Kamer API.
+
+    Example:
+        ```
+        # Assume 'vergader_ids' contains a list of vergaderID values
+        verslagen = get_verslagen(vergader_ids)
+        ```
     """
     # Initialize an empty list to store the HTTP response objects
     verslagen = []
@@ -106,6 +209,22 @@ def latest_verslag(verslagen):
     """
     Determines the latest 'verslag' (meeting report) among a list of provided
     'verslagen'.
+
+    Parameters:
+        verslagen (list): List of HTTP response objects containing 'verslagen'\
+        data.
+
+    Returns:
+        str or int: Content of the latest 'verslag' if found, otherwise -1.
+
+    Raises:
+        PresentieError: If there's an error parsing XML content.
+
+    Example:
+        ```
+        # Assume 'verslagen' contains a list of HTTP response objects
+        latest_content = latest_verslag(verslagen)
+        ```
     """
     # Set a default time for when a 'verslag' is not valid
     default_time = "0001-01-01T00:00:00.0000000+00:00"
@@ -161,6 +280,21 @@ def parse_xml(verslagen):
     """
     Parses XML content received from the Tweede Kamer API to extract information
     about the attending members.
+
+    Parameters:
+        verslagen (list): List of HTTP response objects containing XML data.
+
+    Returns:
+        list or int: List of attending members if found, otherwise -1.
+
+    Raises:
+        PresentieError: If there's an error parsing XML content.
+
+    Example:
+        ```
+        # Assume 'verslagen' contains a list of HTTP response objects
+        attending_members = parse_xml(verslagen)
+        ```
     """
     # Get the latest 'verslag' content
     verslag = latest_verslag(verslagen)
@@ -192,7 +326,6 @@ def parse_xml(verslagen):
             logging.debug(f"[parse_xml()] Attending members: {kamerleden}")
             break
         if "leden der Kamer, te weten:" in str(alinea.text):
-            # TODO: Check if kamerleden are present in this text, instead of next one
             # Set the flag to check the next alinea for attending members
             next_alinea = True
 
@@ -214,6 +347,22 @@ def string_similarity(target, source, matched):
     """
     Matches names from a source list to a target list based on string
     similarity.
+
+    Parameters:
+        target (list): List of names to match against.
+        source (list): List of names to be matched.
+        matched (list): List of names already matched, to avoid duplicates.
+
+    Returns:
+        bool: True if a match is found and added to the 'matched' list, False\
+        otherwise.
+
+    Example:
+        ```
+        # Assume 'target' and 'source' contain lists of names
+        matched_names = []
+        is_matched = string_similarity(target, source, matched_names)
+        ```
     """
     # Initialize a variable to track the number of consistent characters
     consistent = 0
@@ -257,6 +406,20 @@ def string_similarity(target, source, matched):
 def presentie(aanwezig):
     """
     Checks the presence of members based on a list of present members.
+
+    Parameters:
+        aanwezig (list): List of names of members present at the meeting.
+
+    Returns:
+        tuple: A tuple containing two lists - the first list contains names of\
+        present members, and the second list contains names of absent members.
+
+    Example:
+        ```
+        # Assume 'aanwezig' contains a list of names of members present at the
+        # meeting
+        present_members, absent_members = presentie(aanwezig)
+        ```
     """
     # Initialize lists to store matched and absent members, and a counter for
     # matched members
@@ -299,6 +462,22 @@ def array_parsing(aanwezig, afwezig):
     """
     Parses arrays of present and absent members into a DataFrame and performs
     data aggregation.
+
+    Parameters:
+        aanwezig (list): List of names of present members.
+        afwezig (list): List of names of absent members.
+
+    Returns:
+        pandas.DataFrame: DataFrame containing aggregated data on absent\
+        members.
+
+    Example:
+        ```
+        # Assume 'aanwezig' and 'afwezig' contain lists of present and absent
+        # members respectively
+        absentee_df = array_parsing(aanwezig, afwezig)
+        print(absentee_df)
+        ```
     """
     # Convert the list of absent members to a numpy array
     afwezig = numpy.array(afwezig, dtype=object)
@@ -327,6 +506,17 @@ def array_parsing(aanwezig, afwezig):
 def make_graph(aanwezig, afwezig):
     """
     Creates a graphical representation of present and absent members.
+
+    Parameters:
+        aanwezig (list): List of names of present members.
+        afwezig (list): List of names of absent members.
+
+    Example:
+        ```
+        # Assume 'aanwezig' and 'afwezig' contain lists of present and absent
+        # members respectively
+        make_graph(aanwezig, afwezig)
+        ```
     """
     # Parse the data into a format suitable for graph creation
     data = array_parsing(aanwezig, afwezig)
@@ -338,6 +528,22 @@ def make_graph(aanwezig, afwezig):
 def aanwezigheid(datum):
     """
     Checks the presence of members at a meeting on the specified date.
+
+    Parameters:
+        datum (date): The date of the meeting.
+
+    Returns:
+        tuple: A tuple containing two lists - the first list contains names of\
+        present members, and the second list contains names of absent members.
+
+    Raises:
+        PresentieError: If the input 'datum' is not of type 'date'.
+
+    Example:
+        ```
+        # Assume 'datum' is a valid date object
+        present_members, absent_members = aanwezigheid(datum)
+        ```
     """
     # Check if a valid date object is passed
     if not isinstance(datum, date):
@@ -386,6 +592,19 @@ def aanwezigheid(datum):
 def convert_to_date(date_string):
     """
     Converts a date string in the format 'YYYY-MM-DD' to a date object.
+
+    Parameters:
+        date_string (str): Date string in the format 'YYYY-MM-DD' to be\
+        converted.
+
+    Returns:
+        datetime.date: Date object representing the converted date.
+
+    Example:
+        ```
+        # Convert a date string to a date object
+        date_obj = convert_to_date("2024-04-24")
+        ```
     """
     return datetime.strptime(date_string, "%Y-%m-%d").date()
 
@@ -393,6 +612,24 @@ def convert_to_date(date_string):
 def process_date(datum):
     """
     Processes the presence status for a given date.
+
+    Parameters:
+        datum (date): The date to process.
+
+    Returns:
+        tuple: A tuple containing two lists - the first list contains names of\
+        present members, and the second list contains names of absent members.
+
+    Note:
+        This function returns empty lists for weekends and today. If the
+        presence status for the given date cannot be determined, it returns
+        empty lists as well.
+
+    Example:
+        ```
+        # Assume 'datum' is a valid date object
+        present_members, absent_members = process_date(datum)
+        ```
     """
     # Return empty lists for weekends
     if datum.isoweekday() in (6, 7):
@@ -428,6 +665,22 @@ def process_range_of_dates(delta, datum):
     """
     Processes the presence status for a range of dates starting from a given
     date.
+
+    Parameters:
+        delta (timedelta): The timedelta representing the range of dates to\
+        process.
+        datum (date): The starting date from which the range of dates begins.
+
+    Returns:
+        tuple: A tuple containing two lists - the first list contains names of\
+        present members, and the second list contains names of absent members.
+
+    Example:
+        ```
+        # Assume 'delta' is a timedelta object and 'datum' is a valid date
+        # object
+        present_members, absent_members = process_range_of_dates(delta, datum)
+        ```
     """
     # Initialize lists to store present and absent members
     aanwezig_arr = []
@@ -456,6 +709,24 @@ def multiprocess_range_of_dates(delta, datum):
     """
     Processes the presence status for a range of dates starting from a given
     date using multiprocessing.
+
+    Parameters:
+        delta (timedelta): The timedelta representing the range of dates to\
+        process.
+        datum (date): The starting date from which the range of dates begins.
+
+    Returns:
+        tuple: A tuple containing two lists - the first list contains names of\
+        present members, and the second list contains names of absent members.
+
+    Example:
+        ```
+        # Assume 'delta' is a timedelta object and 'datum' is a valid date
+        # object
+        present_members, absent_members = multiprocess_range_of_dates(
+            delta, datum
+        )
+        ```
     """
     from multiprocessing import Pool
     
@@ -487,6 +758,16 @@ def multiprocess_range_of_dates(delta, datum):
 def range_of_dates():
     """
     Processes the presence status for a range of dates inputted by the user.
+
+    Returns:
+        tuple: A tuple containing two lists - the first list contains names of\
+        present members, and the second list contains names of absent members.
+
+    Example:
+        ```
+        # Execute the function to process presence status for a range of dates
+        present_members, absent_members = range_of_dates()
+        ```
     """
     # Prompt the user to input the first and second dates
     datum1 = convert_to_date(input("Geef een eerste datum op (YYYY-MM-DD): "))
@@ -518,6 +799,13 @@ def main():
     """
     Entry point for the program to interactively process presence status and
     optionally create a graph.
+
+    Example:
+        ```
+        # Execute the main function to interactively process presence status and
+        # create a graph
+        main()
+        ```
     """
     # Initialize lists to store present and absent members
     aanwezig_arr = []
@@ -564,6 +852,12 @@ if __name__ == "__main__":
     Parses command-line arguments to set debug mode for printing, initializes
     logging, and calls the main function to interactively process presence
     status and optionally create a graph.
+
+    Example:
+        ```
+        # Execute the script with optional debug mode:
+        # python script_name.py --debug
+        ```
     """
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Set debug mode for printing")
@@ -582,3 +876,7 @@ if __name__ == "__main__":
 
     # Call the main function to process presence status and create a graph
     main()
+
+# =============
+# END OF SCRIPT
+# =============
