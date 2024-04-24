@@ -10,6 +10,7 @@ import requests as req
 import xml.etree.ElementTree as ET
 import json
 from datetime import date, datetime, timedelta
+import os
 
 debug = False
 
@@ -21,16 +22,33 @@ class PresentieError(Exception):
 # Get most recent 'vergaderverslag' from tweedekamer API
 def get_url_content(datum):
   # Write to log file
-  f = open(f"files/logs/log{str(datum)}.txt", "w")
-  f.close() 
-  year = datum.year
-  month = datum.month
-  day = datum.day
-  url = f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Verslag?$filter=year(GewijzigdOp)%20eq%20{year}%20and%20month(GewijzigdOp)%20eq%20{month}%20and%20day(GewijzigdOp)%20eq%20{day}"
+  directory = "files/logs/"
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+  
+  filename = f"log{str(datum)}.txt"
+  filepath = os.path.join(directory, filename)
+  
+  with open(filepath, "w"):
+    # Write content to the file if needed
+    pass  # Placeholder, you can write content here if required
+
+  url = ("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
+    + "/Verslag"
+    + "?$filter="
+    + f"year(GewijzigdOp)%20eq%20{datum.year}"
+    + "%20and%20"
+    + f"month(GewijzigdOp)%20eq%20{datum.month}"
+    + "%20and%20"
+    + f"day(GewijzigdOp)%20eq%20{datum.day}"
+  )
+
   if debug:
     print(url)
-  r = req.get(url)
-  return r.content
+
+  response = req.get(url)
+
+  return response.content
 
 # Get vergaderID from json
 def get_vergader_ids(content):
