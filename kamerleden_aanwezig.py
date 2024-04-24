@@ -123,7 +123,10 @@ def latest_verslag(verslagen):
             raise PresentieError(f"Error parsing XML: {e}")
 
         # Check if the 'verslag' is valid and not a 'Voorpublicatie'
-        if root[0][1].text != "Plenaire zaal" or root.attrib["soort"] == "Voorpublicatie":
+        if (
+            root[0][1].text != "Plenaire zaal"
+            or root.attrib["soort"] == "Voorpublicatie"
+        ):
             # If not valid, append the default time to the list
             timestamps.append(datetime.fromisoformat(default_time))
             continue
@@ -151,7 +154,9 @@ def latest_verslag(verslagen):
     latest_verslag = verslagen[max_element].content.decode()
 
     # Log the details of the latest 'verslag' for debugging purposes
-    logging.debug(f"[latest_verslag()] Max element: {max_element}; Max time: {max_time}")
+    logging.debug(
+        f"[latest_verslag()] Max element: {max_element}; Max time: {max_time}"
+    )
 
     # Return the content of the latest 'verslag'
     return latest_verslag
@@ -201,10 +206,13 @@ def parse_xml(verslagen):
         return -1
 
     # Format attending members into a list
-    kamerleden = kamerleden.lower().rstrip(",").replace(" en ", ",").replace(" ", "").split(",")
+    kamerleden = (
+        kamerleden.lower().rstrip(",").replace(" en ", ",").replace(" ", "").split(",")
+    )
 
     logging.debug(
-        f"[parse_xml()] Type of attending members: {type(kamerleden)}; Attending members: {kamerleden}"
+        f"[parse_xml()] Type of attending members: {type(kamerleden)}; "
+        + f"Attending members: {kamerleden}"
     )
 
     return kamerleden
@@ -315,7 +323,9 @@ def array_parsing(aanwezig, afwezig):
 
     # Group by the 'afwezig' column and count occurrences, then sort by counts
     # in descending order
-    result_df = df.groupby("afwezig").count().sort_values(by=["counts"], ascending=False)
+    result_df = (
+        df.groupby("afwezig").count().sort_values(by=["counts"], ascending=False)
+    )
 
     # Print the DataFrame
     print(result_df)
@@ -458,7 +468,7 @@ def multiprocess_range_of_dates(delta, datum):
     date using multiprocessing.
     """
     from multiprocessing import Pool
-    
+
     # Generate a list of dates to process within the specified range
     dates_to_process = [datum + timedelta(days=i) for i in range(delta.days)]
 
