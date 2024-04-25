@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 import os
 import requests
 import xml.etree.ElementTree as ET
+import difflib
 import numpy
 import pandas
 
@@ -166,63 +167,24 @@ def parse_xml(verslagen):
   return kamerleden
 
 
-# Match names from present list (source) to total list (target)
-def string_similarity(target, source, matched):
-  # Initialize a variable to track the number of consistent characters
-  consistent = 0
-
-  # Iterate through each name in the source list
-  for i in range(len(source)):
-    # Skip names that are already matched
-    if source[i] in matched:
-      continue
-
-    # Reset the consistent count for each new name
-    consistent = 0
-
-    # Iterate through each name in the target list
-    for j in range(len(target)):
-      # If either the length of the source name or target name is reached
-      # or enough letters are matched
-      if (
-        j >= len(source[i])
-        or j >= len(target)
-        or consistent >= len(source[i]) - 1
-      ):
-        # If enough letters are matched, accept the match
-        if consistent >= len(source[i]) - 1:
-          # matched.append(source[i])
-          logging.debug(
-              f"[string_similarity()] Matched {target} to {source[i]}"
-          )
-          return True
-        else:
-          break
-
-      # Compare letters of the target and source names
-      if target[j] == source[i][j]:
-        consistent += 1
-
-  # No match found
-  return False
-
-
 # Checking presence of members based on list of present members
 def presentie(aanwezig):
   matched = []
   afwezig = []
   integer = 0
-  import difflib
 
   print("----Afwezig:----")
   with open("files/2dekmrledn.txt", "r") as f:
     # Check who are present at vergaderingen and mark in 'matched' array
     for line in f:
-      # TODO: Maybe difflib.get_close_matches(word, possibilities, n=3, cutoff=0.6)
-      # if string_similarity(line.rstrip("\n"), aanwezig, matched):
-      close_matches = difflib.get_close_matches(line.rstrip("\n"), aanwezig, 1, 0.9)
-      logging.debug(f"[presentie()] close_matches: {close_matches}, line.rstrip(\"\\n\"): {line.rstrip("\n")}")
-      string_similarity(line.rstrip("\n"), aanwezig, matched)  # DEBUGGING
+      # Try to match names to list of all members (uses 90% string similarity)
+      close_matches = difflib.get_close_matches(
+        line.rstrip("\n"), aanwezig, 1, 0.9
+      )
+      logging.debug(
+        f"[presentie()] close_matches: {close_matches}, "
+        + f"line.rstrip(\"\\n\"): {line.rstrip("\n")}"
+      )
       if close_matches:
         matched.append(close_matches[0])
         integer += 1
