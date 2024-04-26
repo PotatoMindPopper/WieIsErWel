@@ -1,6 +1,6 @@
 import argparse
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 import os
 import requests
 import time
@@ -20,10 +20,17 @@ class PresentieError(Exception):
 def make_request(url, max_retries=3, retry_delay=2):
   for attempt in range(max_retries):
     try:
+      logging.debug(f"[make_request()] Fetching url: {url}")
       response = requests.get(url)
       if response.status_code == 200:
+        logging.debug(
+          f"[make_request()] Fetching succes for url: {url}, {response}"
+        )
         return response
-    except requests.exceptions.ConnectionError as e:
+    except (
+      requests.exceptions.ConnectionError, 
+      requests.exceptions.ChunkedEncodingError
+    ) as e:
       logging.error(f"[make_request()] Connection error occurred: {e}")
     logging.info(f"[make_request()] Retrying... ({attempt+1}/{max_retries})")
     time.sleep(retry_delay)
@@ -84,7 +91,8 @@ def get_verslagen(vergader_ids):
     logging.debug(f"[get_verslagen()] Fetching data from URL: {url}")
     response = make_request(url)
     if response:
-      verslagen.append(response.json())
+      logging.debug(f"[get_verslagen()] Response: {response}")
+      verslagen.append(response) # Add XML data to total list
     else:
       logging.error(f"[get_verslagen()] Failed to fetch data from URL: {url}")
   return verslagen
@@ -92,26 +100,34 @@ def get_verslagen(vergader_ids):
 
 # Determines the latest verslag among list of 'Vergaderverslagen'
 def determine_latest_verslag(verslagen):
-  default_time = datetime.min
+  default_time = datetime.min.replace(tzinfo=timezone.utc)
   latest_verslag_index = -1
   max_time = default_time
 
   for i, verslag in enumerate(verslagen):
     try:
       root = ET.fromstring(verslag.content.decode())
-    except Exception as e:
+    except ET.ParseError as e:
       raise PresentieError(f"Error parsing XML: {e}")
 
     ns = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
+    zaal = root.find(".//ns:zaal", namespaces=ns).text
+    soort = root.get("soort", "")
     if (
-        root.find("./ns:zaal", namespaces=ns) != "Plenaire zaal"
-        or root.get("soort", "") == "Voorpublicatie"
+        zaal != "Plenaire zaal"
+        or soort == "Voorpublicatie"
     ):
+      logging.debug(
+        "[determine_latest_verslag()] Not in Plenaire zaal or Voorpublicatie: "
+        + f"zaal: {zaal}, soort: {soort}"
+      )
       continue
 
     timestamp = root.get("Timestamp", default_time)
     timestamp = datetime.fromisoformat(timestamp)
-    logging.debug(f"[latest_verslag()] Timestamp: {timestamp}")
+    logging.debug(
+      f"[latest_verslag()] Timestamp: {timestamp}, Max time: {max_time}"
+    )
     if timestamp > max_time:
       max_time = timestamp
       latest_verslag_index = i
@@ -137,19 +153,22 @@ def parse_xml(verslagen):
 
   try:
     root = ET.fromstring(verslag)
-  except Exception as e:
+  except ET.ParseError as e:
     raise PresentieError(f"Error parsing XML: {e}")
 
   ns = {"ns": "http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0"}
   alinea_elements = root.findall(".//ns:alineaitem", namespaces=ns)
 
   kamerleden = None
-  for alinea in alinea_elements:
-    if "leden der Kamer, te weten:" in alinea.text:
-      # TODO: Check if kamerleden are present in this text, instead of next one
-      kamerleden = alinea.findnext(
-        "{http://www.tweedekamer.nl/ggm/vergaderverslag/v1.0}alineaitem"
-      )
+  for i, alinea in enumerate(alinea_elements):
+    if "leden der Kamer, te weten:" in str(alinea.text):
+      # Sometimes the current alinea holds the names of the kamerleden
+      if alinea.text.split("leden der Kamer, te weten:", 1)[1] != "":
+        kamerleden = alinea.text
+        logging.debug(f"[parse_xml()] Attending members: {kamerleden}")
+        break
+      # Most of the time, the next alinea holds the names of the kamerleden
+      kamerleden = alinea_elements[i + 1]
       if kamerleden is not None:
         kamerleden = kamerleden.text
         logging.debug(f"[parse_xml()] Attending members: {kamerleden}")
@@ -260,13 +279,17 @@ def aanwezigheid(datum):
     raise PresentieError(f"{datum}({type(datum)}) is not a valid date")
 
   # TODO: Add a waiting text, until presentie(kamerleden) gets called
-  print("Processing...")
+  print(f"Verwerk {datum}...")
 
   # Fetch the content of the meeting report for the specified date
   content = get_url_content(datum)
+  logging.debug(f"[aanwezigheid()] content = get_url_content(datum): {content}")
 
   # Extract the meeting IDs from the meeting report
   vergader_ids = get_vergader_ids(content)
+  logging.debug(
+    f"[aanwezigheid()] vergader_ids = get_vergader_ids(content): {vergader_ids}"
+  )
 
   # If no meeting ID is found, return None for both present and absent members
   if not vergader_ids:
@@ -276,9 +299,15 @@ def aanwezigheid(datum):
 
   # Fetch the meeting reports based on the meeting IDs
   verslagen = get_verslagen(vergader_ids)
+  logging.debug(
+    f"[aanwezigheid()] verslagen = get_verslagen(vergader_ids): {verslagen}"
+  )
 
   # Parse the meeting reports to extract the list of members
   kamerleden = parse_xml(verslagen)
+  logging.debug(
+    f"[aanwezigheid()] kamerleden = parse_xml(verslagen): {kamerleden}"
+  )
 
   # If no members are found, return None for both present and absent members
   if kamerleden == -1:
@@ -286,6 +315,10 @@ def aanwezigheid(datum):
 
   # Check the presence of members and get present and absent lists
   aanwezig, afwezig = presentie(kamerleden)
+  logging.debug(
+    f"[aanwezigheid()] aanwezig, afwezig = presentie(kamerleden): {aanwezig}, "
+    + f"{afwezig}"
+  )
 
   # Write present and absent members to a log file
   with open(f"files/logs/log{datum}.txt", "a") as f:
@@ -327,7 +360,7 @@ def process_multi_date():
   delta = (datum2 - datum1).days
 
   aanwezig_arr, afwezig_arr = [], []
-  for i in range(1, delta):
+  for i in range(0, delta):
     datum = datum1 + timedelta(days=i)
     if datum.isoweekday() in (6, 7):
       continue
@@ -343,6 +376,7 @@ def process_multi_date():
     if aanwezig is not None and afwezig is not None:
       aanwezig_arr.extend(aanwezig)
       afwezig_arr.extend(afwezig)
+    print()
   return aanwezig_arr, afwezig_arr
 
 
@@ -354,7 +388,7 @@ def process_dates():
     elif answer == "2":
       return process_multi_date()
     else:
-      print("Verkeerde invoer (alleen \"1\" of \"2\")")
+      print("Verkeerde invoer (alleen \"1\" of \"2\")\n")
 
 
 def process_graph(aanwezig_arr, afwezig_arr):
@@ -365,7 +399,7 @@ def process_graph(aanwezig_arr, afwezig_arr):
     elif answer == "n":
       return
     else:
-      print("Verkeerde invoer (alleen \"j\" of \"n\")")
+      print("Verkeerde invoer (alleen \"j\" of \"n\")\n")
 
 
 def main():
